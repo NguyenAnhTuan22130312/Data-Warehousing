@@ -39,6 +39,9 @@ def fetch_and_export_data(config):
         base_url = config.get('API_FSTATS', 'url') 
         league_id = config.get('API_FSTATS', 'leagueId')
         limit = config.get('API_FSTATS', 'limit')
+
+        # Lấy thời điểm hiện tại (Timestamp)
+        now = datetime.now()
         
         filename_prefix = config.get('OUTPUT', 'FILENAME_PREFIX')
         
@@ -47,6 +50,7 @@ def fetch_and_export_data(config):
         # 2. Định dạng tên file
         current_date = datetime.now().strftime("%d_%m_%Y") 
         file_name = f"{filename_prefix}{current_date}.csv"
+        update_time_str = now.strftime("%Y-%m-%d %H:%M:%S")
         
         print(f"Đang kết nối tới API: {API_URL}")
         
@@ -67,19 +71,29 @@ def fetch_and_export_data(config):
                 for player in player_list:
                     record = {
                         "category": category,
+                        "id": player.get("id"),
                         "name": player.get("name"),
-                        "result": player.get("result")
+                        "result": player.get("result"),
+                        "update_time": update_time_str
                     }
                     all_records.append(record)
 
         if all_records:
             df_long = pd.DataFrame(all_records)
             
-            df_wide = df_long.pivot(index='name', columns='category', values='result')
+            df_wide = df_long.pivot(
+                index=['id', 'name', 'update_time'], 
+                columns='category', 
+                values='result'
+            )
             
             df_wide = df_wide.fillna(0).astype(int)
             
-            df_wide = df_wide.reset_index().rename(columns={'name': 'Player_Name'})
+            df_wide = df_wide.reset_index().rename(columns={
+                'id': 'Player_ID',
+                'name': 'Player_Name',
+                'update_time': 'Update_Time' 
+            })
             
             df_wide.to_csv(file_name, index=False, encoding='utf-8')
             
