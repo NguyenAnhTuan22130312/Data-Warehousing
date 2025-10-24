@@ -162,9 +162,24 @@ def fetch_and_export_data(config):
     """Hàm chính thực hiện toàn bộ quy trình ETL."""
     now = datetime.now()
     update_time_str = now.strftime("%Y-%m-%d %H:%M:%S")
+
+    # --- ĐỌC CẤU HÌNH OUTPUT TỪ CONFIG.INI ---
+    # 1. Đọc đường dẫn thư mục output từ config
+    output_dir = config.get('OUTPUT', 'csv_output_path')
+    
+    # 2. Đọc tiền tố tên file
     filename_prefix = config.get('OUTPUT', 'FILENAME_PREFIX')
+    
+    # 3. Tạo tên file
     current_date = now.strftime("%d_%m_%Y")
-    file_name = f"{filename_prefix}{current_date}_full_stats.csv"
+    base_file_name = f"{filename_prefix}{current_date}_full_stats.csv"
+    
+    # 4. Tạo đường dẫn file đầy đủ (ví dụ: ../data/staging_...csv)
+    file_name = os.path.join(output_dir, base_file_name)
+    
+    # 5. Tự động tạo thư mục output nếu nó chưa tồn tại
+    os.makedirs(output_dir, exist_ok=True)
+    # --- KẾT THÚC PHẦN CẬP NHẬT ---
 
     try:
         # Bước 1: Lấy danh sách ID và chỉ số cũ
@@ -191,21 +206,21 @@ def fetch_and_export_data(config):
         # Làm sạch và định dạng cuối
         df_final.columns = [col.replace(' ', '_') for col in df_final.columns]
         
-        # Fill NaN cho các cột số (chỉ số thống kê) bằng 0. 
-        # Cần cẩn thận với các cột object như 'placeOfOrigin'
         numeric_cols = df_final.select_dtypes(include=['number']).columns
         df_final[numeric_cols] = df_final[numeric_cols].fillna(0)
 
 
-        # Bước 4: Xuất ra CSV
+        # Bước 4: Xuất ra CSV (sử dụng đường dẫn đầy đủ 'file_name')
         df_final.to_csv(file_name, index=False, encoding='utf-8')
-        print(f"Hoàn tất trích xuất và hợp nhất dữ liệu. File CSV đã lưu tại: {file_name}")
+        
+        # In ra đường dẫn tuyệt đối để bạn dễ kiểm tra
+        print(f"Hoàn tất trích xuất và hợp nhất dữ liệu. File CSV đã lưu tại: {os.path.abspath(file_name)}")
 
     except requests.exceptions.RequestException as e:
         print(f"Lỗi khi gọi API: {e}")
     except Exception as e:
         print(f"Lỗi không xác định trong quá trình xử lý: {e}")
-
+        
 if __name__ == "__main__":
     config = load_config()
     fetch_and_export_data(config)
