@@ -1,0 +1,151 @@
+player_id,player_name,team_id,team_name,nationality,position,age,height,weight,dominant_foot,rating,metric_type,metric_value,duelWon,passSuccess,assist,shotOnTarget,api_date,extract_time
+277,Alan Sebastiao Alexandre,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,27,189.0,82.0,2,0.0,GOAL_FOR,7.0,0,2,2,10,2025-10-30,2025-10-30 23:08:03
+261,Leonardo Artur De Melo,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,30,177.0,68.0,2,0.0,GOAL_FOR,5.0,0,1,1,8,2025-10-30,2025-10-30 23:08:04
+1681,Daniel Da Silva Dos Anjos,97,Ninh Bình,Bồ Đào Nha,,29,180.0,88.0,2,0.0,GOAL_FOR,4.0,0,1,1,9,2025-10-30,2025-10-30 23:08:05
+1492,Imoh Fred Friday,31,Hải Phòng,Nigeria,Tiền đạo trung tâm,30,187.0,90.0,2,0.0,GOAL_FOR,4.0,0,3,3,8,2025-10-30,2025-10-30 23:08:06
+613,Rodrigues Gustavo Henrique,97,Ninh Bình,Việt Nam,,29,183.0,75.0,2,0.0,GOAL_FOR,4.0,0,0,0,5,2025-10-30,2025-10-30 23:08:06
+120,Goncalves Silva Lucas Vinicius,34,Thể Công – Viettel,Brazil,Tiền vệ tấn công trung tâm,34,184.0,80.0,2,0.0,GOAL_FOR,4.0,0,2,2,9,2025-10-30,2025-10-30 23:08:07
+1702,Henen David Boris Philippe,43,SHB Đà Nẵng,Bỉ,,29,186.0,79.0,2,0.0,GOAL_FOR,3.0,0,1,1,6,2025-10-30,2025-10-30 23:08:08
+1699,Milan Makaric,43,SHB Đà Nẵng,Serbia,,30,185.0,76.0,2,0.0,GOAL_FOR,3.0,0,0,0,7,2025-10-30,2025-10-30 23:08:09
+1609,Floro Da Silva Daniel,19,Hà Nội,Brazil,Tiền đạo trung tâm,29,184.0,85.0,2,0.0,GOAL_FOR,3.0,0,1,1,9,2025-10-30,2025-10-30 23:08:09
+1453,Ugochukwu Ogbonnaya OduenyI,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,29,0.0,0.0,2,0.0,GOAL_FOR,3.0,0,0,0,7,2025-10-30,2025-10-30 23:08:10
+384,Nguyễn Hoàng Đức,97,Ninh Bình,Việt Nam,,27,183.0,74.0,2,0.0,ASSIST,4.0,0,4,4,5,2025-10-30,2025-10-30 23:08:11
+1492,Imoh Fred Friday,31,Hải Phòng,Nigeria,Tiền đạo trung tâm,30,187.0,90.0,2,0.0,ASSIST,3.0,0,3,3,8,2025-10-30,2025-10-30 23:08:11
+389,Trương Tiến Anh,34,Thể Công – Viettel,Việt Nam,Tiền vệ trung tâm trái,26,168.0,68.0,2,0.0,ASSIST,3.0,0,3,3,2,2025-10-30,2025-10-30 23:08:12
+257,Đỗ Thanh Thịnh,97,Ninh Bình,Việt Nam,,27,169.0,75.0,2,0.0,ASSIST,3.0,0,3,3,3,2025-10-30,2025-10-30 23:08:13
+1065,Võ Anh Quân,52,PVF - CAND,Việt Nam,Trung vệ,21,173.0,63.0,2,0.0,ASSIST,2.0,0,2,2,1,2025-10-30,2025-10-30 23:08:13
+993,Lê Văn Thuận,37,Đông Á Thanh Hóa,Việt Nam,Tiền vệ trung tâm,19,176.0,61.0,2,0.0,ASSIST,2.0,0,2,2,9,2025-10-30,2025-10-30 23:08:14
+640,Phan Văn Long,43,SHB Đà Nẵng,Việt Nam,,29,178.0,79.0,2,0.0,ASSIST,2.0,0,2,2,2,2025-10-30,2025-10-30 23:08:15
+356,Hoàng Vĩnh Nguyên,7,Hoàng Anh Gia Lai,Việt Nam,Tiền vệ trung tâm phải,23,170.0,60.0,2,0.0,ASSIST,2.0,0,2,2,0,2025-10-30,2025-10-30 23:08:16
+300,Mai Sỹ Hoàng,16,Hồng Lĩnh Hà Tĩnh,Việt Nam,Hậu vệ trái,26,171.0,60.0,2,0.0,ASSIST,2.0,0,2,2,1,2025-10-30,2025-10-30 23:08:16
+277,Alan Sebastiao Alexandre,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,27,189.0,82.0,2,0.0,ASSIST,2.0,0,2,2,10,2025-10-30,2025-10-30 23:08:17
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:17
+1786,Percy Muzi Tau,1,Thép Xanh Nam Định,Nam Phi,Tiền vệ trung tâm,31,168.0,64.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:08:18
+1783,Nguyễn Phương Nam,52,PVF - CAND,Việt Nam,Trung vệ,22,174.0,690.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:19
+1780,De Oliveira Coelho Marco Antonino,52,PVF - CAND,Brazil,Tiền vệ trung tâm,0,180.0,75.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:19
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:20
+1744,Makrillos Peter,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,30,0.0,0.0,2,0.0,INTERCEPTION_WON,0.0,0,1,1,3,2025-10-30,2025-10-30 23:08:21
+1741,Luiz Fernando Nascimento,19,Hà Nội,Brazil,Tiền đạo trung tâm,28,0.0,0.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,6,2025-10-30,2025-10-30 23:08:21
+1738,Schorr Utzig Raphael,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,29,0.0,0.0,2,0.0,INTERCEPTION_WON,0.0,0,1,1,0,2025-10-30,2025-10-30 23:08:22
+1735,Huỳnh Minh Đoàn,37,Đông Á Thanh Hóa,Việt Nam,Trung vệ,23,0.0,0.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:23
+1732,Origbaajo Ismaila,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,27,188.0,76.0,2,0.0,INTERCEPTION_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:08:24
+84,Luiz Antonio De Souza Soares,31,Hải Phòng,Brazil,Tiền vệ cánh phải,34,181.0,80.0,2,0.0,SHOT_ON_TARGET,12.0,0,1,1,12,2025-10-30,2025-10-30 23:08:24
+277,Alan Sebastiao Alexandre,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,27,189.0,82.0,2,0.0,SHOT_ON_TARGET,10.0,0,2,2,10,2025-10-30,2025-10-30 23:08:25
+1681,Daniel Da Silva Dos Anjos,97,Ninh Bình,Bồ Đào Nha,,29,180.0,88.0,2,0.0,SHOT_ON_TARGET,9.0,0,1,1,9,2025-10-30,2025-10-30 23:08:26
+1609,Floro Da Silva Daniel,19,Hà Nội,Brazil,Tiền đạo trung tâm,29,184.0,85.0,2,0.0,SHOT_ON_TARGET,9.0,0,1,1,9,2025-10-30,2025-10-30 23:08:26
+993,Lê Văn Thuận,37,Đông Á Thanh Hóa,Việt Nam,Tiền vệ trung tâm,19,176.0,61.0,2,0.0,SHOT_ON_TARGET,9.0,0,2,2,9,2025-10-30,2025-10-30 23:08:27
+287,Olaha Michael Onyedikachi,13,Sông Lam Nghệ An,Nigeria,Tiền đạo trung tâm,28,180.0,78.0,2,0.0,SHOT_ON_TARGET,9.0,0,1,0,9,2025-10-30,2025-10-30 23:08:28
+120,Goncalves Silva Lucas Vinicius,34,Thể Công – Viettel,Brazil,Tiền vệ tấn công trung tâm,34,184.0,80.0,2,0.0,SHOT_ON_TARGET,9.0,0,2,2,9,2025-10-30,2025-10-30 23:08:29
+95,Nguyễn Hai Long,19,Hà Nội,Việt Nam,Tiền vệ trung tâm,25,168.0,63.0,2,0.0,SHOT_ON_TARGET,9.0,0,1,1,9,2025-10-30,2025-10-30 23:08:29
+1492,Imoh Fred Friday,31,Hải Phòng,Nigeria,Tiền đạo trung tâm,30,187.0,90.0,2,0.0,SHOT_ON_TARGET,8.0,0,3,3,8,2025-10-30,2025-10-30 23:08:30
+261,Leonardo Artur De Melo,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,30,177.0,68.0,2,0.0,SHOT_ON_TARGET,8.0,0,1,1,8,2025-10-30,2025-10-30 23:08:31
+84,Luiz Antonio De Souza Soares,31,Hải Phòng,Brazil,Tiền vệ cánh phải,34,181.0,80.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,7.0,0,1,1,12,2025-10-30,2025-10-30 23:08:32
+1489,Romulo Da Silva Machado,1,Thép Xanh Nam Định,Brazil,Tiền vệ trung tâm,29,182.0,79.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,6.0,0,0,0,6,2025-10-30,2025-10-30 23:08:32
+993,Lê Văn Thuận,37,Đông Á Thanh Hóa,Việt Nam,Tiền vệ trung tâm,19,176.0,61.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,6.0,0,2,2,9,2025-10-30,2025-10-30 23:08:33
+277,Alan Sebastiao Alexandre,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,27,189.0,82.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,5.0,0,2,2,10,2025-10-30,2025-10-30 23:08:34
+261,Leonardo Artur De Melo,4,Công An Hà Nội,Brazil,Tiền đạo trung tâm,30,177.0,68.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,5.0,0,1,1,8,2025-10-30,2025-10-30 23:08:34
+95,Nguyễn Hai Long,19,Hà Nội,Việt Nam,Tiền vệ trung tâm,25,168.0,63.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,5.0,0,1,1,9,2025-10-30,2025-10-30 23:08:35
+384,Nguyễn Hoàng Đức,97,Ninh Bình,Việt Nam,,27,183.0,74.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,4.0,0,4,4,5,2025-10-30,2025-10-30 23:08:36
+287,Olaha Michael Onyedikachi,13,Sông Lam Nghệ An,Nigeria,Tiền đạo trung tâm,28,180.0,78.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,4.0,0,1,0,9,2025-10-30,2025-10-30 23:08:36
+1681,Daniel Da Silva Dos Anjos,97,Ninh Bình,Bồ Đào Nha,,29,180.0,88.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,3.0,0,1,1,9,2025-10-30,2025-10-30 23:08:37
+257,Đỗ Thanh Thịnh,97,Ninh Bình,Việt Nam,,27,169.0,75.0,2,0.0,SHOT_ON_TARGET_OUTSIDE,3.0,0,3,3,3,2025-10-30,2025-10-30 23:08:38
+384,Nguyễn Hoàng Đức,97,Ninh Bình,Việt Nam,,27,183.0,74.0,2,0.0,PASS_SUCCESS,4.0,0,4,4,5,2025-10-30,2025-10-30 23:08:38
+1492,Imoh Fred Friday,31,Hải Phòng,Nigeria,Tiền đạo trung tâm,30,187.0,90.0,2,0.0,PASS_SUCCESS,3.0,0,3,3,8,2025-10-30,2025-10-30 23:08:39
+389,Trương Tiến Anh,34,Thể Công – Viettel,Việt Nam,Tiền vệ trung tâm trái,26,168.0,68.0,2,0.0,PASS_SUCCESS,3.0,0,3,3,2,2025-10-30,2025-10-30 23:08:40
+257,Đỗ Thanh Thịnh,97,Ninh Bình,Việt Nam,,27,169.0,75.0,2,0.0,PASS_SUCCESS,3.0,0,3,3,3,2025-10-30,2025-10-30 23:08:41
+1543,Mauk Stefan Ingo,4,Công An Hà Nội,Australia,Tiền vệ trung tâm,30,174.0,64.0,2,0.0,PASS_SUCCESS,2.0,0,2,1,2,2025-10-30,2025-10-30 23:08:41
+1486,Brenner Marlos Varanda De Oliveria,1,Thép Xanh Nam Định,Brazil,Tiền đạo trung tâm,31,193.0,76.0,2,0.0,PASS_SUCCESS,2.0,0,2,1,7,2025-10-30,2025-10-30 23:08:42
+1065,Võ Anh Quân,52,PVF - CAND,Việt Nam,Trung vệ,21,173.0,63.0,2,0.0,PASS_SUCCESS,2.0,0,2,2,1,2025-10-30,2025-10-30 23:08:43
+993,Lê Văn Thuận,37,Đông Á Thanh Hóa,Việt Nam,Tiền vệ trung tâm,19,176.0,61.0,2,0.0,PASS_SUCCESS,2.0,0,2,2,9,2025-10-30,2025-10-30 23:08:43
+640,Phan Văn Long,43,SHB Đà Nẵng,Việt Nam,,29,178.0,79.0,2,0.0,PASS_SUCCESS,2.0,0,2,2,2,2025-10-30,2025-10-30 23:08:44
+356,Hoàng Vĩnh Nguyên,7,Hoàng Anh Gia Lai,Việt Nam,Tiền vệ trung tâm phải,23,170.0,60.0,2,0.0,PASS_SUCCESS,2.0,0,2,2,0,2025-10-30,2025-10-30 23:08:44
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:45
+1786,Percy Muzi Tau,1,Thép Xanh Nam Định,Nam Phi,Tiền vệ trung tâm,31,168.0,64.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:08:46
+1783,Nguyễn Phương Nam,52,PVF - CAND,Việt Nam,Trung vệ,22,174.0,690.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:46
+1780,De Oliveira Coelho Marco Antonino,52,PVF - CAND,Brazil,Tiền vệ trung tâm,0,180.0,75.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:47
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:48
+1744,Makrillos Peter,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,30,0.0,0.0,2,0.0,DRIBBLED_WON,0.0,0,1,1,3,2025-10-30,2025-10-30 23:08:48
+1741,Luiz Fernando Nascimento,19,Hà Nội,Brazil,Tiền đạo trung tâm,28,0.0,0.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,6,2025-10-30,2025-10-30 23:08:49
+1738,Schorr Utzig Raphael,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,29,0.0,0.0,2,0.0,DRIBBLED_WON,0.0,0,1,1,0,2025-10-30,2025-10-30 23:08:49
+1735,Huỳnh Minh Đoàn,37,Đông Á Thanh Hóa,Việt Nam,Trung vệ,23,0.0,0.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:50
+1732,Origbaajo Ismaila,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,27,188.0,76.0,2,0.0,DRIBBLED_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:08:51
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,AERIAL_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:52
+1786,Percy Muzi Tau,1,Thép Xanh Nam Định,Nam Phi,Tiền vệ trung tâm,31,168.0,64.0,2,0.0,AERIAL_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:08:53
+1783,Nguyễn Phương Nam,52,PVF - CAND,Việt Nam,Trung vệ,22,174.0,690.0,2,0.0,AERIAL_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:54
+1780,De Oliveira Coelho Marco Antonino,52,PVF - CAND,Brazil,Tiền vệ trung tâm,0,180.0,75.0,2,0.0,AERIAL_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:55
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,AERIAL_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:55
+1744,Makrillos Peter,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,30,0.0,0.0,2,0.0,AERIAL_WON,0.0,0,1,1,3,2025-10-30,2025-10-30 23:08:56
+1741,Luiz Fernando Nascimento,19,Hà Nội,Brazil,Tiền đạo trung tâm,28,0.0,0.0,2,0.0,AERIAL_WON,0.0,0,0,0,6,2025-10-30,2025-10-30 23:08:57
+1738,Schorr Utzig Raphael,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,29,0.0,0.0,2,0.0,AERIAL_WON,0.0,0,1,1,0,2025-10-30,2025-10-30 23:08:57
+1735,Huỳnh Minh Đoàn,37,Đông Á Thanh Hóa,Việt Nam,Trung vệ,23,0.0,0.0,2,0.0,AERIAL_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:08:58
+1732,Origbaajo Ismaila,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,27,188.0,76.0,2,0.0,AERIAL_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:08:59
+993,Lê Văn Thuận,37,Đông Á Thanh Hóa,Việt Nam,Tiền vệ trung tâm,19,176.0,61.0,2,0.0,PASS_CROSS_WON,2.0,0,2,2,9,2025-10-30,2025-10-30 23:08:59
+389,Trương Tiến Anh,34,Thể Công – Viettel,Việt Nam,Tiền vệ trung tâm trái,26,168.0,68.0,2,0.0,PASS_CROSS_WON,2.0,0,3,3,2,2025-10-30,2025-10-30 23:09:00
+384,Nguyễn Hoàng Đức,97,Ninh Bình,Việt Nam,,27,183.0,74.0,2,0.0,PASS_CROSS_WON,2.0,0,4,4,5,2025-10-30,2025-10-30 23:09:00
+356,Hoàng Vĩnh Nguyên,7,Hoàng Anh Gia Lai,Việt Nam,Tiền vệ trung tâm phải,23,170.0,60.0,2,0.0,PASS_CROSS_WON,2.0,0,2,2,0,2025-10-30,2025-10-30 23:09:01
+300,Mai Sỹ Hoàng,16,Hồng Lĩnh Hà Tĩnh,Việt Nam,Hậu vệ trái,26,171.0,60.0,2,0.0,PASS_CROSS_WON,2.0,0,2,2,1,2025-10-30,2025-10-30 23:09:02
+1648,Nguyễn Đức Phú,28,Công an TP.HCM,Việt Nam,Tiền vệ trung tâm,22,170.0,60.0,2,0.0,PASS_CROSS_WON,1.0,0,1,1,1,2025-10-30,2025-10-30 23:09:02
+1630,Huỳnh Công Đến,52,PVF - CAND,Việt Nam,Tiền vệ trung tâm,24,163.0,64.0,2,0.0,PASS_CROSS_WON,1.0,0,1,1,1,2025-10-30,2025-10-30 23:09:03
+1330,Mbo Noel,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,26,185.0,87.0,2,0.0,PASS_CROSS_WON,1.0,0,1,1,0,2025-10-30,2025-10-30 23:09:04
+1249,Nguyễn Thái Quốc Cường,28,Công an TP.HCM,Việt Nam,Tiền vệ trung tâm,21,173.0,67.0,2,0.0,PASS_CROSS_WON,1.0,0,1,1,3,2025-10-30,2025-10-30 23:09:04
+1065,Võ Anh Quân,52,PVF - CAND,Việt Nam,Trung vệ,21,173.0,63.0,2,0.0,PASS_CROSS_WON,1.0,0,2,2,1,2025-10-30,2025-10-30 23:09:05
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:06
+1786,Percy Muzi Tau,1,Thép Xanh Nam Định,Nam Phi,Tiền vệ trung tâm,31,168.0,64.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:09:06
+1783,Nguyễn Phương Nam,52,PVF - CAND,Việt Nam,Trung vệ,22,174.0,690.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:07
+1780,De Oliveira Coelho Marco Antonino,52,PVF - CAND,Brazil,Tiền vệ trung tâm,0,180.0,75.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:08
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:08
+1744,Makrillos Peter,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,30,0.0,0.0,2,0.0,DUEL_TACKLE_WON,0.0,0,1,1,3,2025-10-30,2025-10-30 23:09:09
+1741,Luiz Fernando Nascimento,19,Hà Nội,Brazil,Tiền đạo trung tâm,28,0.0,0.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,6,2025-10-30,2025-10-30 23:09:10
+1738,Schorr Utzig Raphael,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,29,0.0,0.0,2,0.0,DUEL_TACKLE_WON,0.0,0,1,1,0,2025-10-30,2025-10-30 23:09:10
+1735,Huỳnh Minh Đoàn,37,Đông Á Thanh Hóa,Việt Nam,Trung vệ,23,0.0,0.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:11
+1732,Origbaajo Ismaila,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,27,188.0,76.0,2,0.0,DUEL_TACKLE_WON,0.0,0,0,0,4,2025-10-30,2025-10-30 23:09:12
+1249,Nguyễn Thái Quốc Cường,28,Công an TP.HCM,Việt Nam,Tiền vệ trung tâm,21,173.0,67.0,2,0.0,FOULED,4.0,0,1,1,3,2025-10-30,2025-10-30 23:09:12
+1492,Imoh Fred Friday,31,Hải Phòng,Nigeria,Tiền đạo trung tâm,30,187.0,90.0,2,0.0,FOULED,3.0,0,3,3,8,2025-10-30,2025-10-30 23:09:13
+24,Lê Quang Hùng,28,Công an TP.HCM,Việt Nam,Hậu vệ phải,33,165.0,65.0,2,0.0,FOULED,3.0,0,2,2,1,2025-10-30,2025-10-30 23:09:14
+1639,Nguyễn Thanh Nhàn,52,PVF - CAND,Việt Nam,Tiền đạo trung tâm,22,173.0,69.0,2,0.0,FOULED,2.0,0,0,0,4,2025-10-30,2025-10-30 23:09:14
+95,Nguyễn Hai Long,19,Hà Nội,Việt Nam,Tiền vệ trung tâm,25,168.0,63.0,2,0.0,FOULED,2.0,0,1,1,9,2025-10-30,2025-10-30 23:09:15
+94,Nguyễn Văn Quyết,19,Hà Nội,Việt Nam,Tiền đạo phụ,34,172.0,65.0,2,0.0,FOULED,2.0,0,1,1,5,2025-10-30,2025-10-30 23:09:15
+1654,Joseph Shaqkeem Jaylon Khalio,52,PVF - CAND,Trinidad and Tobago,Tiền đạo trung tâm,38,185.0,79.0,2,0.0,FOULED,1.0,0,0,0,0,2025-10-30,2025-10-30 23:09:16
+1630,Huỳnh Công Đến,52,PVF - CAND,Việt Nam,Tiền vệ trung tâm,24,163.0,64.0,2,0.0,FOULED,1.0,0,1,1,1,2025-10-30,2025-10-30 23:09:17
+1615,Matheus Felipe Santos Nascimento,28,Công an TP.HCM,Brazil,Trung vệ,26,186.0,75.0,2,0.0,FOULED,1.0,0,0,0,0,2025-10-30,2025-10-30 23:09:17
+1345,Khổng Minh Gia Bảo,28,Công an TP.HCM,Việt Nam,Trung vệ,25,175.0,73.0,2,0.0,FOULED,1.0,0,0,0,0,2025-10-30,2025-10-30 23:09:18
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:18
+1786,Percy Muzi Tau,1,Thép Xanh Nam Định,Nam Phi,Tiền vệ trung tâm,31,168.0,64.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,4,2025-10-30,2025-10-30 23:09:19
+1783,Nguyễn Phương Nam,52,PVF - CAND,Việt Nam,Trung vệ,22,174.0,690.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:20
+1780,De Oliveira Coelho Marco Antonino,52,PVF - CAND,Brazil,Tiền vệ trung tâm,0,180.0,75.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:20
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:21
+1744,Makrillos Peter,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,30,0.0,0.0,2,0.0,GOALKEEPER_SAVED,0.0,0,1,1,3,2025-10-30,2025-10-30 23:09:21
+1741,Luiz Fernando Nascimento,19,Hà Nội,Brazil,Tiền đạo trung tâm,28,0.0,0.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,6,2025-10-30,2025-10-30 23:09:22
+1738,Schorr Utzig Raphael,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,29,0.0,0.0,2,0.0,GOALKEEPER_SAVED,0.0,0,1,1,0,2025-10-30,2025-10-30 23:09:23
+1735,Huỳnh Minh Đoàn,37,Đông Á Thanh Hóa,Việt Nam,Trung vệ,23,0.0,0.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:23
+1732,Origbaajo Ismaila,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,27,188.0,76.0,2,0.0,GOALKEEPER_SAVED,0.0,0,0,0,4,2025-10-30,2025-10-30 23:09:24
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:25
+1786,Percy Muzi Tau,1,Thép Xanh Nam Định,Nam Phi,Tiền vệ trung tâm,31,168.0,64.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,4,2025-10-30,2025-10-30 23:09:26
+1783,Nguyễn Phương Nam,52,PVF - CAND,Việt Nam,Trung vệ,22,174.0,690.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:26
+1780,De Oliveira Coelho Marco Antonino,52,PVF - CAND,Brazil,Tiền vệ trung tâm,0,180.0,75.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:27
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:29
+1744,Makrillos Peter,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,30,0.0,0.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,1,1,3,2025-10-30,2025-10-30 23:09:30
+1741,Luiz Fernando Nascimento,19,Hà Nội,Brazil,Tiền đạo trung tâm,28,0.0,0.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,6,2025-10-30,2025-10-30 23:09:31
+1738,Schorr Utzig Raphael,28,Công an TP.HCM,Brazil,Tiền đạo trung tâm,29,0.0,0.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,1,1,0,2025-10-30,2025-10-30 23:09:32
+1735,Huỳnh Minh Đoàn,37,Đông Á Thanh Hóa,Việt Nam,Trung vệ,23,0.0,0.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:32
+1732,Origbaajo Ismaila,40,BECAMEX HCM CITY,Nigeria,Tiền đạo cắm,27,188.0,76.0,2,0.0,GOALKEEPER_CONCEDED,0.0,0,0,0,4,2025-10-30,2025-10-30 23:09:33
+1714,Mamadou Mbodji,37,Đông Á Thanh Hóa,Senegal,Trung vệ,32,188.0,88.0,2,0.0,YELLOW_CARD,3.0,0,0,0,2,2025-10-30,2025-10-30 23:09:34
+333,Trần Văn Công,1,Thép Xanh Nam Định,Việt Nam,Tiền vệ phòng ngự trái,26,176.0,70.0,2,0.0,YELLOW_CARD,3.0,0,0,0,0,2025-10-30,2025-10-30 23:09:34
+97,Nguyễn Thành Chung,19,Hà Nội,Việt Nam,Trung vệ,28,180.0,70.0,2,0.0,YELLOW_CARD,3.0,0,0,0,0,2025-10-30,2025-10-30 23:09:35
+64,Nguyễn Thái Sơn,37,Đông Á Thanh Hóa,Việt Nam,Tiền vệ phòng ngự trái,22,171.0,61.0,2,0.0,YELLOW_CARD,3.0,0,0,0,1,2025-10-30,2025-10-30 23:09:36
+1762,Lê Khá Đức,28,Công an TP.HCM,Việt Nam,Trung vệ,18,169.0,64.0,2,0.0,YELLOW_CARD,2.0,0,0,0,0,2025-10-30,2025-10-30 23:09:37
+1687,Nguyễn Văn Khánh,16,Hồng Lĩnh Hà Tĩnh,Việt Nam,Tiền vệ trung tâm,16,171.0,63.0,2,0.0,YELLOW_CARD,2.0,0,0,0,0,2025-10-30,2025-10-30 23:09:37
+1639,Nguyễn Thanh Nhàn,52,PVF - CAND,Việt Nam,Tiền đạo trung tâm,22,173.0,69.0,2,0.0,YELLOW_CARD,2.0,0,0,0,4,2025-10-30,2025-10-30 23:09:38
+1441,Nguyễn Minh Tâm,7,Hoàng Anh Gia Lai,Việt Nam,Tiền đạo cắm,20,0.0,0.0,2,0.0,YELLOW_CARD,2.0,0,0,0,3,2025-10-30,2025-10-30 23:09:39
+1351,Silva Da Silva Marciel,7,Hoàng Anh Gia Lai,Brazil,Tiền vệ trung tâm,30,186.0,85.0,2,0.0,YELLOW_CARD,2.0,0,1,1,2,2025-10-30,2025-10-30 23:09:39
+457,Nguyễn Hồng Phúc,43,SHB Đà Nẵng,Việt Nam,,22,178.0,66.0,2,0.0,YELLOW_CARD,2.0,0,0,0,0,2025-10-30,2025-10-30 23:09:40
+1729,Justin Julian Garcia,13,Sông Lam Nghệ An,Trinidad & Tobago,,30,181.0,80.0,2,0.0,RED_CARD,1.0,0,0,0,1,2025-10-30,2025-10-30 23:09:41
+1711,Reon Dale Moore,13,Sông Lam Nghệ An,Trinidad & Tobago,Tiền đạo trung tâm,29,185.0,78.0,2,0.0,RED_CARD,1.0,0,0,0,1,2025-10-30,2025-10-30 23:09:42
+616,Lê Văn Đô,4,Công An Hà Nội,Việt Nam,Tiền vệ trung tâm,24,173.0,65.0,2,0.0,RED_CARD,1.0,0,0,0,1,2025-10-30,2025-10-30 23:09:42
+367,Bùi Tiến Dũng,34,Thể Công – Viettel,Việt Nam,Trung vệ phải,30,172.0,70.0,2,0.0,RED_CARD,1.0,0,0,0,1,2025-10-30,2025-10-30 23:09:43
+342,Võ Huy Toàn,28,Công an TP.HCM,Việt Nam,Tiền vệ cánh trái,32,168.0,65.0,2,0.0,RED_CARD,1.0,0,0,0,1,2025-10-30,2025-10-30 23:09:43
+118,Mpande Joseph Mbolimbo,52,PVF - CAND,Uganda,Tiền đạo trung tâm,31,183.0,80.0,2,0.0,RED_CARD,1.0,0,1,1,2,2025-10-30,2025-10-30 23:09:44
+55,Candido Silveira Geovane Magno,97,Ninh Bình,Brazil,,31,188.0,78.0,2,0.0,RED_CARD,1.0,0,0,0,4,2025-10-30,2025-10-30 23:09:45
+51,Huỳnh Tấn Tài,16,Hồng Lĩnh Hà Tĩnh,Việt Nam,Tiền vệ trung tâm,31,168.0,66.0,2,0.0,RED_CARD,1.0,0,0,0,1,2025-10-30,2025-10-30 23:09:45
+25,Trần Trung Hiếu,40,BECAMEX HCM CITY,Việt Nam,Tiền vệ trung tâm,32,180.0,75.0,2,0.0,RED_CARD,1.0,0,0,0,0,2025-10-30,2025-10-30 23:09:46
+1858,William Lee,28,Công an TP.HCM,Anh,Tiền đạo trung tâm,18,190.0,75.0,2,0.0,RED_CARD,0.0,0,0,0,0,2025-10-30,2025-10-30 23:09:47
