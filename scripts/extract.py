@@ -24,7 +24,7 @@ print("✅ Kết nối thành công đến cơ sở dữ liệu:", db_config.get
 
 # 6.1. Thiết lập ngày chạy ETL tự động
 data_date = datetime.datetime.now().strftime("%Y-%m-%d")
-print(f"📅 Ngày chạy ETL tự động: {data_date}")
+print(f"Ngày chạy ETL tự động: {data_date}")
 
 # 6.2. Lấy danh sách API có trạng thái active từ bảng DataSource
 cursor.execute("SELECT * FROM DataSource WHERE Is_Active=1")
@@ -32,7 +32,7 @@ apis = cursor.fetchall()
 if not apis:
     error_message = "❌ Không lấy được danh sách API"
     print(error_message)
-    # Ghi lỗi vào log_history
+    #Lưu lại log với trạng thái FAILED
     end_time = datetime.datetime.now()
     created_at = datetime.datetime.now()
     insert_log_new(cursor, "GET_ALL_API", end_time, error_message, created_at,  "FAILED")
@@ -47,7 +47,7 @@ api1 = next((a for a in apis if 'top5-player' in a['Endpoint']), None)
 if not api1:
     error_message = "❌ Không tìm thấy API top5-player trong DataSource"
     print(error_message)
-    # 6.3.1 Lưu lại log với trạng thái FAILD
+    #Lưu lại log với trạng thái FAILD
     end_time = datetime.datetime.now()
     created_at = datetime.datetime.now()
     insert_log_new(cursor, "CALL_API_1", end_time, error_message, created_at,  "FAILED")
@@ -62,7 +62,7 @@ res = requests.get(f"{api1['Base_URL']}{api1['Endpoint']}", params=params)
 res.raise_for_status()  # ném lỗi nếu HTTP != 200
 data = res.json()
 
-# 6.3.2 Chuyển dữ liệu metric thành list
+# 6.4 Chuyển dữ liệu metric thành list
 player_list = []
 for metric, players in data.items():
     for p in players:
@@ -74,7 +74,7 @@ for metric, players in data.items():
         })
 
 
-#6.4 Gọi API 2 và 3 đã thiết lập trong bảng DataSource 
+#6.5 Gọi API 2 và 3 đã thiết lập trong bảng DataSource 
 api2 = next((a for a in apis if 'overview' in a['Endpoint']), None)
 api3 = next((a for a in apis if 'performance' in a['Endpoint']), None)
 
@@ -83,7 +83,7 @@ api3 = next((a for a in apis if 'performance' in a['Endpoint']), None)
 if not api2 or not api3:
     error_message = "❌ Thiếu API overview hoặc performance trong DataSource"
     print(error_message)
-    # 6.4.1 Lưu lại log với trạng thái FAILD
+    # 6.5.1 Lưu lại log với trạng thái FAILD
     end_time = datetime.datetime.now()
     created_at = datetime.datetime.now()
     insert_log_new(cursor, "CALL_API_2_OR_3", end_time, error_message, created_at,  "FAILED")
@@ -95,7 +95,7 @@ if not api2 or not api3:
 final_rows = []
 
 #Có
-#6.4.2 Lấy dữ liệu trả về từ 2 API 
+#6.5.2 Lấy dữ liệu trả về từ 2 API 
 for p in player_list:
     pid = p['player_id']
 
@@ -136,15 +136,14 @@ for p in player_list:
     })
 
 
-#6.5 Khởi tạo tên file đầu ra cho file csv
+#6.6 Khởi tạo tên file đầu ra cho file csv
 output_dir = os.path.join('data')
 os.makedirs(output_dir, exist_ok=True)
 output_file = os.path.join(output_dir, f"staging_player_stats_{data_date}.csv")
 
 
 try:
-    #6.5.1 Chèn dữ liệu từ kết quả của 3 API vào file CSV
-    if final_rows:
+        #6.7 Chèn dữ liệu từ kết quả của 3 API vào file CSV
         fieldnames = list(final_rows[0].keys())
         with open(output_file, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -152,14 +151,15 @@ try:
             writer.writerows(final_rows)
         print(f"✅ Extracted {len(final_rows)} records → {output_file}")
         
-        #6.5.1.1 Lưu lại log với trạng thái SUCCESS
-        insert_log_history(cursor, "extract_player_stats", api1['Source_ID'], "SUCCESS", len(final_rows))
+        #6.7.1 Lưu lại log với trạng thái SUCCESS
+        insert_log_history(cursor, "extract_player_stats_top5", api1['Source_ID'], "SUCCESS", len(player_list))
+        insert_log_history(cursor, "extract_player_stats_overview", api2['Source_ID'], "SUCCESS", len(player_list))
+        insert_log_history(cursor, "extract_player_stats_performance", api3['Source_ID'], "SUCCESS", len(player_list))
+
         conn.commit()
-    else:
-        #6.5.2 Đưa ra thông báo 
-        print("⚠️ Không có dữ liệu nào được ghi ra file.")
+
 except Exception as e:
-        #6.5.1.1 Lưu lại log với trạng thái FAILED
+        #6.7.2 Lưu lại log với trạng thái FAILED
     insert_log_history(cursor, "extract_player_stats", api1['Source_ID'], "FAILED", 0, str(e))
     conn.commit()
 
