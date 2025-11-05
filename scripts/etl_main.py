@@ -51,6 +51,9 @@ try:
     # 8. Truy cập file load.py để thực hiện load to datawarehouse
     print("Đang chạy file load.py ...")
     result_code = os.system("python scripts/load.py")
+     # 9. datamart
+    print("Đang chạy file build_datamart.py ...")
+    result_code = os.system("python scripts/build_datamart.py")
 
 except Exception as e:
     # Cập nhật trạng thái quá trình ETL thành FAILED
