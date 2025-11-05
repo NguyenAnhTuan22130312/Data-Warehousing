@@ -1,226 +1,168 @@
-import requests
-import pandas as pd
-from datetime import datetime
+import requests, csv, datetime, json
 import configparser
-import os
-import sys
-
-# Điều chỉnh đường dẫn cấu hình tùy theo cấu trúc thư mục thực tế của bạn
-CONFIG_PATH = '../config/config.ini' 
-
-# Các thuộc tính cũ lấy từ API tổng hợp (dữ liệu chính)
-TARGET_CATEGORIES = [
-    "GOAL_FOR",
-    "ASSIST",
-    "SHOT_ON_TARGET",
-    "INTERCEPTION_WON",
-    "SHOT_ON_TARGET_OUTSIDE",
-    "DRIBBLED_WON",
-    "AERIAL_WON",
-    "PASS_CROSS_WON",
-    "DUEL_TACKLE_WON",
-    "FOULED",
-    "GOALKEEPER_SAVED",
-    "GOALKEEPER_CONCEDED",
-    "YELLOW_CARD",
-    "RED_CARD"
-]
-
-# Các thuộc tính mới cần lấy từ 2 API chi tiết (đã loại bỏ các thuộc tính trùng với TARGET_CATEGORIES)
-NEW_PLAYER_ATTRIBUTES = [
-    # Từ API statistic
-    "totalMatchMain", "totalMatchPlayed", "minutesPlayed",
-    "goalWithLeftFoot", "goalWithRightFoot", "goalWithHead", "penaltiesGoals",
-    "foulCommitted", "block", "clearance", 
-    "pass", "ratioGoal", "shot", "ratioGoalInPenaltyArea",
-    "ratioGoalOutsidePenaltyArea", "ratioShotOnTarget", "duelWon", 
-    "imgUrl", "isGK",
-    
-    # Từ API overview
-    "positionShortName", "teamLogo", "rating", "idMainPosition", "age",
-    "teamId", "placeOfOrigin", "dateOfBirth", "height", "weight",
-    "dominantFoot", "jerseyNo", "dateStart", "teamName", "position"
-]
+import sys, os
+import mysql.connector
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.db_utils import connect_db, insert_log_history,insert_log_new
 
 
-def load_config(config_file=CONFIG_PATH):
-    """Tải file cấu hình."""
-    config = configparser.ConfigParser()
-    
-    # Giả định file config nằm ở ../config/config.ini
-    config_path_abs = os.path.abspath(config_file)
-    if not os.path.exists(config_path_abs):
-        print(f"Lỗi: Không tìm thấy file cấu hình tại {config_path_abs}")
-        sys.exit(1)
+# 6. Đọc  cấu hình từ config và lấy thông tin database ControlManagementDB
+config = configparser.ConfigParser()
+config.read(os.path.join('config', 'config.ini'))
+# Lấy thông tin database ControlManagementDB
+db_config = config['databaseControlManagementDB']
+#Kết nối DB
+conn  = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="",        
+    database="ControlManagementDB"   
+)
+cursor = conn.cursor(dictionary=True)
+print("✅ Kết nối thành công đến cơ sở dữ liệu:", db_config.get('database'))
+
+
+# 6.1. Thiết lập ngày chạy ETL tự động
+data_date = datetime.datetime.now().strftime("%Y-%m-%d")
+print(f"Ngày chạy ETL tự động: {data_date}")
+
+# 6.2. Lấy danh sách API có trạng thái active từ bảng DataSource
+cursor.execute("SELECT * FROM DataSource WHERE Is_Active=1")
+apis = cursor.fetchall()
+if not apis:
+    error_message = "❌ Không lấy được danh sách API"
+    print(error_message)
+    #Lưu lại log với trạng thái FAILED
+    end_time = datetime.datetime.now()
+    created_at = datetime.datetime.now()
+    insert_log_new(cursor, "GET_ALL_API", end_time, error_message, created_at,  "FAILED")
+    conn.commit()
+
+    # dừng ETL
+    raise Exception(error_message)
+
+#6.3. Gọi API với enpoint có top_5_player trong DataSource
+api1 = next((a for a in apis if 'top5-player' in a['Endpoint']), None)
+#API có tồn tại không ?
+if not api1:
+    error_message = "❌ Không tìm thấy API top5-player trong DataSource"
+    print(error_message)
+    #Lưu lại log với trạng thái FAILD
+    end_time = datetime.datetime.now()
+    created_at = datetime.datetime.now()
+    insert_log_new(cursor, "CALL_API_1", end_time, error_message, created_at,  "FAILED")
+    conn.commit()
+
+    # dừng ETL
+    raise Exception(error_message)
+
+
+params = json.loads(api1['Params']) if api1['Params'] else {}
+res = requests.get(f"{api1['Base_URL']}{api1['Endpoint']}", params=params)
+res.raise_for_status()  # ném lỗi nếu HTTP != 200
+data = res.json()
+
+# 6.4 Chuyển dữ liệu metric thành list
+player_list = []
+for metric, players in data.items():
+    for p in players:
+        player_list.append({
+            'player_id': p.get('id'),
+            'player_name': p.get('name'),
+            'metric_type': metric,
+            'metric_value': p.get('result')
+        })
+
+
+#6.5 Gọi API 2 và 3 đã thiết lập trong bảng DataSource 
+api2 = next((a for a in apis if 'overview' in a['Endpoint']), None)
+api3 = next((a for a in apis if 'performance' in a['Endpoint']), None)
+
+# API có tồn tại không ?
+#Không
+if not api2 or not api3:
+    error_message = "❌ Thiếu API overview hoặc performance trong DataSource"
+    print(error_message)
+    # 6.5.1 Lưu lại log với trạng thái FAILD
+    end_time = datetime.datetime.now()
+    created_at = datetime.datetime.now()
+    insert_log_new(cursor, "CALL_API_2_OR_3", end_time, error_message, created_at,  "FAILED")
+    conn.commit()
+
+    # dừng ETL
+    raise Exception(error_message)
+
+final_rows = []
+
+#Có
+#6.5.2 Lấy dữ liệu trả về từ 2 API 
+for p in player_list:
+    pid = p['player_id']
+
+    # Gọi API overview
+    overview = requests.get(
+        f"{api2['Base_URL']}{api2['Endpoint']}",
+        params={"leagueId": 28, "playerId": pid}
+    ).json()
+
+    # Gọi API performance
+    perf = requests.get(
+        f"{api3['Base_URL']}{api3['Endpoint']}",
+        params={"leagueId": 28, "playerId": pid}
+    ).json()
+
+    perf_player = perf.get('player', {})
+
+    final_rows.append({
+        'player_id': pid,
+        'player_name': overview.get('fullName', p['player_name']),
+        'team_id': overview.get('teamId'),
+        'team_name': overview.get('teamName'),
+        'nationality': overview.get('placeOfOrigin'),
+        'position': overview.get('position'),
+        'age': overview.get('age'),
+        'height': overview.get('height'),
+        'weight': overview.get('weight'),
+        'dominant_foot': overview.get('dominantFoot'),
+        'rating': overview.get('rating'),
+        'metric_type': p['metric_type'],
+        'metric_value': p['metric_value'],
+        'duelWon': perf_player.get('duelWon'),
+        'passSuccess': perf_player.get('passSuccess'),
+        'assist': perf_player.get('assist'),
+        'shotOnTarget': perf_player.get('shotOnTarget'),
+        'api_date': data_date,
+        'extract_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+
+
+#6.6 Khởi tạo tên file đầu ra cho file csv
+output_dir = os.path.join('data')
+os.makedirs(output_dir, exist_ok=True)
+output_file = os.path.join(output_dir, f"staging_player_stats_{data_date}.csv")
+
+
+try:
+        #6.7 Chèn dữ liệu từ kết quả của 3 API vào file CSV
+        fieldnames = list(final_rows[0].keys())
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(final_rows)
+        print(f"✅ Extracted {len(final_rows)} records → {output_file}")
         
-    config.read(config_path_abs)
-    return config
+        #6.7.1 Lưu lại log với trạng thái SUCCESS
+        insert_log_history(cursor, "extract_player_stats_top5", api1['Source_ID'], "SUCCESS", len(player_list))
+        insert_log_history(cursor, "extract_player_stats_overview", api2['Source_ID'], "SUCCESS", len(player_list))
+        insert_log_history(cursor, "extract_player_stats_performance", api3['Source_ID'], "SUCCESS", len(player_list))
 
+        conn.commit()
 
-def get_player_ids_and_old_stats(config, update_time_str):
-    """
-    Bước 1: Lấy danh sách ID cầu thủ duy nhất và các chỉ số cũ từ API tổng hợp.
-    """
-    base_url = config.get('API_FSTATS', 'url')
-    league_id = config.get('API_FSTATS', 'leagueId')
-    limit = config.get('API_FSTATS', 'limit')
-    API_URL = f"{base_url}?leagueId={league_id}&limit={limit}"
-    
-    print(f"\n1. Đang lấy danh sách ID và chỉ số cũ từ API: {API_URL}")
-    response = requests.get(API_URL)
-    response.raise_for_status()
-    full_stats = response.json()
-    stats_data = full_stats.get('data', full_stats)
-    
-    all_records = []
-    
-    for category in TARGET_CATEGORIES:
-        if category in stats_data and isinstance(stats_data[category], list):
-            for player in stats_data[category]:
-                all_records.append({
-                    "category": category,
-                    "id": player.get("id"),
-                    "name": player.get("name"),
-                    "result": player.get("result"),
-                    "update_time": update_time_str
-                })
-    
-    if not all_records:
-        return None, None
-        
-    df_long = pd.DataFrame(all_records)
-    # Chuyển đổi thành định dạng wide cho các chỉ số cũ
-    df_old_stats = df_long.pivot(
-        index=['id', 'name', 'update_time'],
-        columns='category',
-        values='result'
-    ).reset_index().rename(columns={
-        'id': 'Player_ID',
-        'name': 'Player_Name',
-        'update_time': 'Update_Time'
-    }).fillna(0) # Giữ nguyên fillna(0) để khớp với code cũ và chỉ số numeric
-    
-    # Lấy danh sách ID và Name duy nhất để dùng cho các API chi tiết
-    player_list = df_old_stats[['Player_ID', 'Player_Name']].drop_duplicates().reset_index(drop=True)
-    
-    print(f"-> Tìm thấy {len(player_list)} cầu thủ duy nhất.")
-    return player_list, df_old_stats
+except Exception as e:
+        #6.7.2 Lưu lại log với trạng thái FAILED
+    insert_log_history(cursor, "extract_player_stats", api1['Source_ID'], "FAILED", 0, str(e))
+    conn.commit()
 
-
-def get_new_player_details(config, player_list, update_time_str):
-    """
-    Bước 2: Lặp qua danh sách cầu thủ và gọi 2 API chi tiết để lấy thông tin mới.
-    """
-    league_id = config.get('API_FSTATS', 'leagueId')
-    stat_base_url = config.get('API_FSTATS', 'STATISTIC_BASE_URL')
-    overview_base_url = config.get('API_FSTATS', 'OVERVIEW_BASE_URL')
-    new_details = []
-    
-    print("2. Đang lấy dữ liệu chi tiết từ 2 API mới (statistic & overview)...")
-
-    for index, row in player_list.iterrows():
-        player_id = row['Player_ID']
-        
-        player_data = {'Player_ID': player_id, 'Update_Time': update_time_str}
-        
-        # --- API Statistic ---
-        stat_url = f"{stat_base_url}?leagueId={league_id}&playerId={player_id}"
-        try:
-            stat_res = requests.get(stat_url)
-            stat_res.raise_for_status()
-            stat_data = stat_res.json().get('player', {})
-            
-            for key in NEW_PLAYER_ATTRIBUTES:
-                # Chỉ lấy các thuộc tính mới có trong API statistic
-                if key in stat_data and key not in player_data: 
-                    player_data[key] = stat_data[key]
-                        
-        except requests.exceptions.RequestException as e:
-            print(f"Lỗi API Statistic cho ID {player_id}: {e}")
-            
-        # --- API Overview ---
-        overview_url = f"{overview_base_url}?leagueId={league_id}&playerId={player_id}"
-        try:
-            overview_res = requests.get(overview_url)
-            overview_res.raise_for_status()
-            overview_data = overview_res.json()
-            
-            for key in NEW_PLAYER_ATTRIBUTES:
-                # Chỉ lấy các thuộc tính mới có trong API overview và chưa có
-                if key in overview_data and key not in player_data:
-                     player_data[key] = overview_data[key]
-
-        except requests.exceptions.RequestException as e:
-            print(f"Lỗi API Overview cho ID {player_id}: {e}")
-            
-        new_details.append(player_data)
-        
-    return pd.DataFrame(new_details)
-
-
-def fetch_and_export_data(config):
-    """Hàm chính thực hiện toàn bộ quy trình ETL."""
-    now = datetime.now()
-    update_time_str = now.strftime("%Y-%m-%d %H:%M:%S")
-
-    # --- ĐỌC CẤU HÌNH OUTPUT TỪ CONFIG.INI ---
-    # 1. Đọc đường dẫn thư mục output từ config
-    output_dir = config.get('OUTPUT', 'csv_output_path')
-    
-    # 2. Đọc tiền tố tên file
-    filename_prefix = config.get('OUTPUT', 'FILENAME_PREFIX')
-    
-    # 3. Tạo tên file
-    current_date = now.strftime("%d_%m_%Y")
-    base_file_name = f"{filename_prefix}{current_date}_full_stats.csv"
-    
-    # 4. Tạo đường dẫn file đầy đủ (ví dụ: ../data/staging_...csv)
-    file_name = os.path.join(output_dir, base_file_name)
-    
-    # 5. Tự động tạo thư mục output nếu nó chưa tồn tại
-    os.makedirs(output_dir, exist_ok=True)
-    # --- KẾT THÚC PHẦN CẬP NHẬT ---
-
-    try:
-        # Bước 1: Lấy danh sách ID và chỉ số cũ
-        player_list, df_old_stats = get_player_ids_and_old_stats(config, update_time_str)
-        
-        if player_list is None:
-            print("Không có dữ liệu cầu thủ hợp lệ từ API tổng hợp.")
-            return
-
-        # Bước 2: Lấy dữ liệu chi tiết mới
-        df_new_stats = get_new_player_details(config, player_list, update_time_str)
-        
-        # Bước 3: Hợp nhất dữ liệu
-        print("3. Đang hợp nhất dữ liệu...")
-        
-        # Merge df_old_stats (chứa Player_Name) và df_new_stats
-        df_final = pd.merge(
-            df_old_stats, 
-            df_new_stats, 
-            on=['Player_ID', 'Update_Time'], 
-            how='left'
-        )
-        
-        # Làm sạch và định dạng cuối
-        df_final.columns = [col.replace(' ', '_') for col in df_final.columns]
-        
-        numeric_cols = df_final.select_dtypes(include=['number']).columns
-        df_final[numeric_cols] = df_final[numeric_cols].fillna(0)
-
-
-        # Bước 4: Xuất ra CSV (sử dụng đường dẫn đầy đủ 'file_name')
-        df_final.to_csv(file_name, index=False, encoding='utf-8')
-        
-        # In ra đường dẫn tuyệt đối để bạn dễ kiểm tra
-        print(f"Hoàn tất trích xuất và hợp nhất dữ liệu. File CSV đã lưu tại: {os.path.abspath(file_name)}")
-
-    except requests.exceptions.RequestException as e:
-        print(f"Lỗi khi gọi API: {e}")
-    except Exception as e:
-        print(f"Lỗi không xác định trong quá trình xử lý: {e}")
-        
-if __name__ == "__main__":
-    config = load_config()
-    fetch_and_export_data(config)
+# Đóng kết nối
+cursor.close()
+conn.close()
