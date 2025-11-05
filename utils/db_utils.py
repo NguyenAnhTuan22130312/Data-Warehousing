@@ -7,7 +7,7 @@ def connect_db():
     config = configparser.ConfigParser()
     config.read(os.path.join("config", "config.ini"))
     db_cfg = config["databaseControlManagementDB"]
-
+   
     conn = mysql.connector.connect(
         host=db_cfg["host"],
         user=db_cfg["user"],
@@ -15,6 +15,7 @@ def connect_db():
         database=db_cfg["database"],
         port=int(db_cfg.get("port", 3306))
     )
+    print("check ket noi: ", conn)
     return conn, conn.cursor(dictionary=True)
 
 def insert_log(cursor, job_name, start_time,  status):
