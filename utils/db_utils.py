@@ -1,13 +1,26 @@
 import mysql.connector
 import datetime
+import os
+import configparser
+
+def get_project_root():
+    """Trả về D:\DATA-WAREHOUSING"""
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def connect_db():
     #3. Đọc file cấu hình D:\Data-Warehousing\config\config.ini để lấy cấu hình kết nối CSDL 
-    import configparser, os
+    root = get_project_root()
+    
+    # Đường dẫn tuyệt đối tới file config.ini
+    config_path = os.path.join(root, "config", "config.ini")
+
+    # Đọc file config.ini
     config = configparser.ConfigParser()
-    config.read(os.path.join("config", "config.ini"))
+    config.read(config_path, encoding="utf-8")
+
     db_cfg = config["databaseControlManagementDB"]
 
+    # Kết nối MySQL
     conn = mysql.connector.connect(
         host=db_cfg["host"],
         user=db_cfg["user"],

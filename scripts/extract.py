@@ -13,7 +13,7 @@ config.read(os.path.join('config', 'config.ini'))
 db_config = config['databaseControlManagementDB']
 #Kết nối DB
 conn  = mysql.connector.connect(
-    host="localhost",
+    host="127.0.0.1",
     user="root",
     password="",        
     database="ControlManagementDB"   
