@@ -6,9 +6,6 @@ import os
 import traceback
 
 def send_email(subject: str, body: str, to_list: list):
-    """
-    Gửi email thông báo khi ETL thành công hoặc thất bại.
-    """
     try:
         # Đọc thông tin email từ file config.ini
         config = configparser.ConfigParser()

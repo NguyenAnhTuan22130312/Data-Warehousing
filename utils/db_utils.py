@@ -7,14 +7,27 @@ def get_project_root():
     """Trả về D:\DATA-WAREHOUSING"""
     return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+
+def get_log_by_id(cursor, log_id):
+    """Lấy log theo ID để xác nhận trạng thái RUNNING."""
+    cursor.execute("SELECT id, job_name, status FROM Log_History WHERE id = %s", (log_id,))
+    row = cursor.fetchone()
+    if row:
+        # Nếu row là dictionary
+        if isinstance(row, dict):
+            return {"id": row["id"], "job_name": row["job_name"], "status": row["status"]}
+        # Nếu row là tuple
+        else:
+            return {"id": row[0], "job_name": row[1], "status": row[2]}
+    return None
+
+
 def connect_db():
-    #3. Đọc file cấu hình D:\Data-Warehousing\config\config.ini để lấy cấu hình kết nối CSDL 
     root = get_project_root()
-    
     # Đường dẫn tuyệt đối tới file config.ini
     config_path = os.path.join(root, "config", "config.ini")
 
-    # Đọc file config.ini
+    #3. Đọc file cấu hình D:\Data-Warehousing\config\config.ini để lấy cấu hình kết nối CSDL 
     config = configparser.ConfigParser()
     config.read(config_path, encoding="utf-8")
 

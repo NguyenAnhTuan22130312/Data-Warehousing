@@ -4,6 +4,7 @@ import sys, os
 import mysql.connector
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.db_utils import connect_db, insert_log_history,insert_log_new
+import argparse
 
 
 # 6. Đọc  cấu hình từ config và lấy thông tin database ControlManagementDB
@@ -23,12 +24,19 @@ print("✅ Kết nối thành công đến cơ sở dữ liệu:", db_config.get
 
 
 # 6.1. Thiết lập ngày chạy ETL tự động
-data_date = datetime.datetime.now().strftime("%Y-%m-%d")
+# Nhận tham số ngày
+parser = argparse.ArgumentParser(description="Extract Player Data")
+parser.add_argument('--date', type=str, required=True, help='Ngày dữ liệu (YYYY-MM-DD)')
+args = parser.parse_args()
+data_date = args.date
 print(f"Ngày chạy ETL tự động: {data_date}")
 
 # 6.2. Lấy danh sách API có trạng thái active từ bảng DataSource
 cursor.execute("SELECT * FROM DataSource WHERE Is_Active=1")
 apis = cursor.fetchall()
+
+#Có API hay không ?
+#không
 if not apis:
     error_message = "❌ Không lấy được danh sách API"
     print(error_message)
@@ -41,9 +49,12 @@ if not apis:
     # dừng ETL
     raise Exception(error_message)
 
+#có
 #6.3. Gọi API với enpoint có top_5_player trong DataSource
 api1 = next((a for a in apis if 'top5-player' in a['Endpoint']), None)
+
 #API có tồn tại không ?
+#Không
 if not api1:
     error_message = "❌ Không tìm thấy API top5-player trong DataSource"
     print(error_message)
@@ -56,7 +67,7 @@ if not api1:
     # dừng ETL
     raise Exception(error_message)
 
-
+#Có
 params = json.loads(api1['Params']) if api1['Params'] else {}
 res = requests.get(f"{api1['Base_URL']}{api1['Endpoint']}", params=params)
 res.raise_for_status()  # ném lỗi nếu HTTP != 200
