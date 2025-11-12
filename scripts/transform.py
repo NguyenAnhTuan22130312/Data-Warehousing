@@ -368,3 +368,24 @@ if __name__ == "__main__":
             print(f"❌ Lỗi khi đang gửi email báo lỗi: {e}")
 
         sys.exit(1)
+        
+        # --- GỬI EMAIL THÀNH CÔNG ---
+    if not error_message:
+        try:
+            email_cfg = config["email"]
+            receiver_list = [email_cfg["receiver"]]
+            subject = f"[ETL THÀNH CÔNG] Transform hoàn tất cho ngày {date_to_process}"
+            body = (
+                f"🎉 Quá trình Transform & Load đã hoàn tất thành công!\n\n"
+                f"Ngày xử lý: {date_to_process}\n"
+                f"Số bản ghi đã load: {records_loaded}\n"
+                f"Thời gian bắt đầu: {start_time}\n"
+                f"Thời gian kết thúc: {end_time}\n\n"
+                f"Trạng thái: {log_status}\n\n"
+                f"-- ETL Notification System --"
+            )
+            send_email(subject, body, receiver_list)
+            print("📧 Đã gửi email thông báo thành công.")
+        except Exception as e:
+            print(f"⚠️ Không thể gửi email báo thành công: {e}")
+
