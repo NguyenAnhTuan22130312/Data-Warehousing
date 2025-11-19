@@ -27,7 +27,8 @@ def connect_db():
     # Đường dẫn tuyệt đối tới file config.ini
     config_path = os.path.join(root, "config", "config.ini")
 
-    #3. Đọc file cấu hình D:\Data-Warehousing\config\config.ini để lấy cấu hình kết nối CSDL 
+    #3. Đọc file cấu hình D:\Data-Warehousing\config\config.ini để
+      #lấy cấu hình kết nối CSDL trong file D:\Data-Warehousing\utils\db_utils.py
     config = configparser.ConfigParser()
     config.read(config_path, encoding="utf-8")
 
