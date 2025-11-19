@@ -7,7 +7,7 @@ from utils.db_utils import connect_db, insert_log_history,insert_log_new
 import argparse
 
 
-# 6. Đọc  cấu hình từ config và lấy thông tin database ControlManagementDB
+# 6. Đọc cấu hình từ file D:\Data-Warehousing\config\config.ini  và lấy thông tin kết nối database ControlManagementDB
 config = configparser.ConfigParser()
 config.read(os.path.join('config', 'config.ini'))
 # Lấy thông tin database ControlManagementDB
@@ -23,7 +23,7 @@ cursor = conn.cursor(dictionary=True)
 print("✅ Kết nối thành công đến cơ sở dữ liệu:", db_config.get('database'))
 
 
-# 6.1. Thiết lập ngày chạy ETL tự động
+# 6.1. Thiết lập ngày chạy ETL tự động có dạng YYYY-MM-DD  trong D:\Data-Warehousing\script\extract.py
 # Nhận tham số ngày
 parser = argparse.ArgumentParser(description="Extract Player Data")
 parser.add_argument('--date', type=str, required=True, help='Ngày dữ liệu (YYYY-MM-DD)')
@@ -31,16 +31,16 @@ args = parser.parse_args()
 data_date = args.date
 print(f"Ngày chạy ETL tự động: {data_date}")
 
-# 6.2. Lấy danh sách API có trạng thái active từ bảng DataSource
+# 6.2. Lấy danh sách các  API có trong bảng DataSource của database ControlManagementDB có trạng thái active 
 cursor.execute("SELECT * FROM DataSource WHERE Is_Active=1")
 apis = cursor.fetchall()
 
-#Có API hay không ?
+#Có lấy được danh sách API hay không ? 
 #không
 if not apis:
     error_message = "❌ Không lấy được danh sách API"
     print(error_message)
-    #Lưu lại log với trạng thái FAILED
+    # Lưu lại log vào bảng log_history của DB ControlManagementDB với trạng thái FAILED
     end_time = datetime.datetime.now()
     created_at = datetime.datetime.now()
     insert_log_new(cursor, "GET_ALL_API", end_time, error_message, created_at,  "FAILED")
@@ -50,7 +50,8 @@ if not apis:
     raise Exception(error_message)
 
 #có
-#6.3. Gọi API với enpoint có top_5_player trong DataSource
+# 6.3. Gọi API "https://api.fstats.ai/fbs/api/public/league/top5-player-by-everything?leagueId=28&limit=10"  trong DataSource của DB ControlManagementDB 
+
 api1 = next((a for a in apis if 'top5-player' in a['Endpoint']), None)
 
 #API có tồn tại không ?
@@ -58,7 +59,7 @@ api1 = next((a for a in apis if 'top5-player' in a['Endpoint']), None)
 if not api1:
     error_message = "❌ Không tìm thấy API top5-player trong DataSource"
     print(error_message)
-    #Lưu lại log với trạng thái FAILD
+    #Lưu lại log vào bảng log_history của DB ControlManagementDB với trạng thái FAILED
     end_time = datetime.datetime.now()
     created_at = datetime.datetime.now()
     insert_log_new(cursor, "CALL_API_1", end_time, error_message, created_at,  "FAILED")
@@ -73,7 +74,7 @@ res = requests.get(f"{api1['Base_URL']}{api1['Endpoint']}", params=params)
 res.raise_for_status()  # ném lỗi nếu HTTP != 200
 data = res.json()
 
-# 6.4 Chuyển dữ liệu metric thành list
+# 6.4 Chuyển dữ liệu trả về từ API "https://api.fstats.ai/fbs/api/public/league/top5-player-by-everything?leagueId=28&limit=10" metric thành list
 player_list = []
 for metric, players in data.items():
     for p in players:
@@ -85,7 +86,7 @@ for metric, players in data.items():
         })
 
 
-#6.5 Gọi API 2 và 3 đã thiết lập trong bảng DataSource 
+#6.5 Gọi API "https://api.fstats.ai/fbs/api/public/player/statistic?leagueId=28&playerId=..." và API "https://api.fstats.ai/fbs/api/public/player/overview?leagueId=28&playerId=..." đã được trả về từ bảng DataSource của DB ControlManagementDB   
 api2 = next((a for a in apis if 'overview' in a['Endpoint']), None)
 api3 = next((a for a in apis if 'performance' in a['Endpoint']), None)
 
@@ -94,7 +95,7 @@ api3 = next((a for a in apis if 'performance' in a['Endpoint']), None)
 if not api2 or not api3:
     error_message = "❌ Thiếu API overview hoặc performance trong DataSource"
     print(error_message)
-    # 6.5.1 Lưu lại log với trạng thái FAILD
+    # 6.5.1 Lưu lại log vào bảng log_history của DB ControlManagementDB với trạng thái FAILD
     end_time = datetime.datetime.now()
     created_at = datetime.datetime.now()
     insert_log_new(cursor, "CALL_API_2_OR_3", end_time, error_message, created_at,  "FAILED")
@@ -106,7 +107,7 @@ if not api2 or not api3:
 final_rows = []
 
 #Có
-#6.5.2 Lấy dữ liệu trả về từ 2 API 
+#6.5.2 Lấy dữ liệu thông tin player và thông số player được  trả về từ 2 API  
 for p in player_list:
     pid = p['player_id']
 
@@ -147,14 +148,14 @@ for p in player_list:
     })
 
 
-#6.6 Khởi tạo tên file đầu ra cho file csv
+#6.6 Khởi tạo tên file đầu ra cho file csv có dạng staging_player_stats_yyyy-mm-dd và lưu trong D:\Data-Warehousing\data\
 output_dir = os.path.join('data')
 os.makedirs(output_dir, exist_ok=True)
 output_file = os.path.join(output_dir, f"staging_player_stats_{data_date}.csv")
 
 
 try:
-        #6.7 Chèn dữ liệu từ kết quả của 3 API vào file CSV
+        #6.7 Chèn dữ liệu từ kết quả của 3 API vào file staging_player_stats_yyyy-mm-dd.csv 
         fieldnames = list(final_rows[0].keys())
         with open(output_file, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -162,7 +163,7 @@ try:
             writer.writerows(final_rows)
         print(f"✅ Extracted {len(final_rows)} records → {output_file}")
         
-        #6.7.1 Lưu lại log với trạng thái SUCCESS
+        #6.7.1 Lưu lại log thông báo với trạng thái SUCCESS vào trong bảng Log_History của DB ControlManagementDB   
         insert_log_history(cursor, "extract_player_stats_top5", api1['Source_ID'], "SUCCESS", len(player_list))
         insert_log_history(cursor, "extract_player_stats_overview", api2['Source_ID'], "SUCCESS", len(player_list))
         insert_log_history(cursor, "extract_player_stats_performance", api3['Source_ID'], "SUCCESS", len(player_list))
@@ -170,7 +171,7 @@ try:
         conn.commit()
 
 except Exception as e:
-        #6.7.2 Lưu lại log với trạng thái FAILED
+        #6.7.2 Lưu lại log với trạng thái FAILED vào trong bảng Log_History của DB ControlManagementDB
     insert_log_history(cursor, "extract_player_stats", api1['Source_ID'], "FAILED", 0, str(e))
     conn.commit()
 
