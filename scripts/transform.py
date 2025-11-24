@@ -26,159 +26,6 @@ except ImportError:
         print("------------------------------------------")
 
 
-def transform_and_load(data_date_str: str, config):
-    conn = None
-    cursor = None
-    record_count = 0  # Biến đếm số dòng load vào player_staging
-
-    try:
-        # Đọc cấu hình
-        db_config = config["databasePerformance_Staging"]
-
-        # Thiết lập các biến
-        load_batch_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        target_filename = f"staging_player_stats_{data_date_str}.csv"
-        input_file = os.path.join(PROJECT_ROOT, "data", target_filename)
-
-        # 7.3. KIỂM TRA FILE .CSV TỒN TẠI?
-        if not os.path.exists(input_file):
-            # Nếu 'Không ❌', trả về lỗi (sẽ được xử lý ở 7.2.a)
-            error_msg = (
-                f"Không tìm thấy file CSV cho ngày '{data_date_str}': {input_file}"
-            )
-            print(f"❌ Lỗi: {error_msg}")
-            return False, error_msg, 0  # Trả về 0 records
-
-        # Nếu 'Có ✅', tiếp tục
-        print(f"Bắt đầu xử lý file: {input_file}")
-        print(f"Load Batch ID: {load_batch_id}")
-
-        # 7.4. KẾT NỐI CSDL STAGING, DELETE, LOAD, COMMIT
-        print(f"✅ Kết nối thành công đến cơ sở dữ liệu: {db_config.get('database')}")
-        conn = mysql.connector.connect(
-            host=db_config.get("host"),
-            user=db_config.get("user"),
-            password=db_config.get("password"),
-            database=db_config.get("database"),
-            port=db_config.get("port"),
-        )
-        cursor = conn.cursor()
-
-        player_data_to_load = []
-        date_data_to_load = {}
-
-        # Đọc file CSV và Transform
-        with open(input_file, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                api_date_str = row.get("api_date")
-                if not api_date_str or api_date_str != data_date_str:
-                    continue
-
-                date_obj = datetime.datetime.strptime(api_date_str, "%Y-%m-%d")
-                date_key = date_obj.strftime("%Y%m%d")
-
-                player_tuple = (
-                    row.get("player_id"),
-                    row.get("player_name"),
-                    row.get("team_id"),
-                    row.get("team_name"),
-                    row.get("nationality"),
-                    row.get("position"),
-                    row.get("age"),
-                    row.get("height"),
-                    row.get("weight"),
-                    row.get("dominant_foot"),
-                    row.get("rating"),
-                    row.get("metric_type"),
-                    row.get("metric_value"),
-                    row.get("duelWon"),
-                    row.get("passSuccess"),
-                    row.get("assist"),
-                    row.get("shotOnTarget"),
-                    row.get("api_date"),
-                    row.get("extract_time"),
-                    date_key,
-                    load_batch_id,
-                )
-                player_data_to_load.append(player_tuple)
-
-                if api_date_str not in date_data_to_load:
-                    year, month, day = date_obj.year, date_obj.month, date_obj.day
-                    quarter = (month - 1) // 3 + 1
-                    day_of_week, day_name = date_obj.isoweekday(), date_obj.strftime(
-                        "%A"
-                    )
-                    month_name, is_weekend = date_obj.strftime("%B"), (
-                        "1" if day_of_week >= 6 else "0"
-                    )
-                    date_tuple = (
-                        date_key,
-                        api_date_str,
-                        api_date_str,
-                        str(year),
-                        str(quarter),
-                        str(month).zfill(2),
-                        str(day).zfill(2),
-                        str(day_of_week),
-                        day_name,
-                        month_name,
-                        is_weekend,
-                        load_batch_id,
-                    )
-                    date_data_to_load[api_date_str] = date_tuple
-
-        # 7.4.1 Xóa data snap short cũ
-        print(f"Đang dọn dẹp dữ liệu cũ cho api_date = '{data_date_str}'...")
-        cursor.execute(
-            "DELETE FROM player_staging WHERE api_date = %s", (data_date_str,)
-        )
-        print(f"Đã xóa {cursor.rowcount} bản ghi cũ.")
-
-        # 7.4.2 Load data mới vào table date_staging và player_staging
-        if date_data_to_load:
-            date_values = list(date_data_to_load.values())
-            sql_date = """INSERT IGNORE INTO date_staging (date_key, api_date, full_date, year, quarter, month, day, day_of_week, day_name, month_name, is_weekend, load_batch) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            cursor.executemany(sql_date, date_values)
-            print(
-                f"✅ Đã load {cursor.rowcount} bản ghi (ngày duy nhất) vào date_staging."
-            )
-
-        if player_data_to_load:
-            sql_player = """INSERT INTO player_staging (player_id, player_name, team_id, team_name, nationality, position, age, height, weight, dominant_foot, rating, metric_type, metric_value, duelWon, passSuccess, assist, shotOnTarget, api_date, extract_time, date_key, load_batch) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            cursor.executemany(sql_player, player_data_to_load)
-            record_count = cursor.rowcount
-            print(f"✅ Đã load {record_count} bản ghi vào player_staging.")
-
-        conn.commit()
-
-        print("🎉 Transform và Load hoàn tất!")
-        return True, None, record_count
-
-    except Exception as e:
-        error_msg = f"Lỗi trong quá trình Transform/Load: {e}"
-        print(f"❌ {error_msg}")
-        if conn:
-            conn.rollback()
-        return False, error_msg, 0
-    finally:
-        if cursor:
-            cursor.close()
-        if conn and conn.is_connected():
-            conn.close()
-            print("Đã đóng kết nối CSDL Performance_Staging.")
-
-
-def is_valid_date(date_string):
-    if re.match(r"^\d{4}-\d{2}-\d{2}$", date_string):
-        try:
-            datetime.datetime.strptime(date_string, "%Y-%m-%d")
-            return True
-        except ValueError:
-            return False
-    return False
-
-
 def check_extract_success(data_date_str: str, config):
     db_conn = None
     db_cursor = None
@@ -243,6 +90,165 @@ def check_extract_success(data_date_str: str, config):
         print("Đã đóng kết nối CSDL ControlManagementDB.")
 
 
+def transform_and_load(data_date_str: str, config):
+    conn = None
+    cursor = None
+    record_count = 0  # Biến đếm số dòng load vào player_staging
+
+    try:
+        # Đọc cấu hình
+        db_config = config["databasePerformance_Staging"]
+
+        # Thiết lập các biến
+        load_batch_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        target_filename = f"staging_player_stats_{data_date_str}.csv"
+        input_file = os.path.join(PROJECT_ROOT, "data", target_filename)
+
+        # 7.3. KIỂM TRA FILE .CSV TỒN TẠI?
+        if not os.path.exists(input_file):
+            # Nếu 'Không ❌', trả về lỗi (sẽ được xử lý ở 7.2.a)
+            error_msg = (
+                f"Không tìm thấy file CSV cho ngày '{data_date_str}': {input_file}"
+            )
+            print(f"❌ Lỗi: {error_msg}")
+            return False, error_msg, 0  # Trả về 0 records
+
+        # Nếu 'Có ✅', tiếp tục
+        # 7.4 Bắt đầu xử lí file và load bath id 
+        print(f"Bắt đầu xử lý file: {input_file}")
+        print(f"Load Batch ID: {load_batch_id}")
+
+        # 7.5. KẾT NỐI CSDL STAGING, DELETE, LOAD, COMMIT
+        print(f"✅ Kết nối thành công đến cơ sở dữ liệu: {db_config.get('database')}")
+        conn = mysql.connector.connect(
+            host=db_config.get("host"),
+            user=db_config.get("user"),
+            password=db_config.get("password"),
+            database=db_config.get("database"),
+            port=db_config.get("port"),
+        )
+        cursor = conn.cursor()
+        
+        # Bước 7.5.1: Khởi tạo các cấu trúc dữ liệu để chứa các bản ghi đã được Transform
+        player_data_to_load = []
+        date_data_to_load = {}
+
+        #7.6 Đọc file staging_player_stats_yyyy-mm-dd.csv và tiến hành Transformation Phase
+        with open(input_file, mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                api_date_str = row.get("api_date")
+                if not api_date_str or api_date_str != data_date_str:
+                    continue
+
+                date_obj = datetime.datetime.strptime(api_date_str, "%Y-%m-%d")
+                date_key = date_obj.strftime("%Y%m%d")
+
+                player_tuple = (
+                    row.get("player_id"),
+                    row.get("player_name"),
+                    row.get("team_id"),
+                    row.get("team_name"),
+                    row.get("nationality"),
+                    row.get("position"),
+                    row.get("age"),
+                    row.get("height"),
+                    row.get("weight"),
+                    row.get("dominant_foot"),
+                    row.get("rating"),
+                    row.get("metric_type"),
+                    row.get("metric_value"),
+                    row.get("duelWon"),
+                    row.get("passSuccess"),
+                    row.get("assist"),
+                    row.get("shotOnTarget"),
+                    row.get("api_date"),
+                    row.get("extract_time"),
+                    date_key,
+                    load_batch_id,
+                )
+                player_data_to_load.append(player_tuple)
+
+                if api_date_str not in date_data_to_load:
+                    year, month, day = date_obj.year, date_obj.month, date_obj.day
+                    quarter = (month - 1) // 3 + 1
+                    day_of_week, day_name = date_obj.isoweekday(), date_obj.strftime(
+                        "%A"
+                    )
+                    month_name, is_weekend = date_obj.strftime("%B"), (
+                        "1" if day_of_week >= 6 else "0"
+                    )
+                    date_tuple = (
+                        date_key,
+                        api_date_str,
+                        api_date_str,
+                        str(year),
+                        str(quarter),
+                        str(month).zfill(2),
+                        str(day).zfill(2),
+                        str(day_of_week),
+                        day_name,
+                        month_name,
+                        is_weekend,
+                        load_batch_id,
+                    )
+                    date_data_to_load[api_date_str] = date_tuple
+
+        # 7.6.1 Xóa data snap short cũ player_staging theo api_date
+        print(f"Đang dọn dẹp dữ liệu cũ cho api_date = '{data_date_str}'...")
+        cursor.execute(
+            "DELETE FROM player_staging WHERE api_date = %s", (data_date_str,)
+        )
+        print(f"Đã xóa {cursor.rowcount} bản ghi cũ.")
+
+        # 7.6.2 Load data mới vào table date_staging và player_staging
+        # 7.6.2.a: Thực hiện Bulk INSERT IGNORE vào date_staging 
+        if date_data_to_load:
+            date_values = list(date_data_to_load.values())
+            sql_date = """INSERT IGNORE INTO date_staging (date_key, api_date, full_date, year, quarter, month, day, day_of_week, day_name, month_name, is_weekend, load_batch) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            cursor.executemany(sql_date, date_values)
+            print(
+                f"✅ Đã load {cursor.rowcount} bản ghi (ngày duy nhất) vào date_staging."
+            )
+        # Bước 7.6.2.b: Thực hiện Bulk INSERT vào player_staging
+        if player_data_to_load:
+            sql_player = """INSERT INTO player_staging (player_id, player_name, team_id, team_name, nationality, position, age, height, weight, dominant_foot, rating, metric_type, metric_value, duelWon, passSuccess, assist, shotOnTarget, api_date, extract_time, date_key, load_batch) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            cursor.executemany(sql_player, player_data_to_load)
+            record_count = cursor.rowcount
+            print(f"✅ Đã load {record_count} bản ghi vào player_staging.")
+            
+        # Bước 7.6.2.c: Thực hiện **COMMIT** transaction để lưu thay đổi
+        conn.commit()
+        
+        # 7.7 Kết thúc Thông báo transform thành công (SUCEESD)
+        print("🎉 Transform và Load hoàn tất!")
+        return True, None, record_count
+
+    except Exception as e:
+         # 7.8 Kết thúc Thông báo transform thất bại (FAILED)
+        error_msg = f"Lỗi trong quá trình Transform/Load: {e}"
+        print(f"❌ {error_msg}")
+        if conn:
+            conn.rollback()
+        return False, error_msg, 0
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+            print("Đã đóng kết nối CSDL Performance_Staging.")
+
+
+def is_valid_date(date_string):
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", date_string):
+        try:
+            datetime.datetime.strptime(date_string, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False
+    return False
+
+
 # LUỒNG ĐIỀU KHIỂN CHÍNH
 if __name__ == "__main__":
 
@@ -304,7 +310,7 @@ if __name__ == "__main__":
         if not date_to_process:
             error_message = "Lỗi định dạng ngày (Manual) hoặc không có ngày xử lý."
 
-    # ----- 7.7 GHI LOG VÀO DATABASE log_history-----
+    # ----- 7.9 GHI LOG VÀO DATABASE log_history-----
     end_time = datetime.datetime.now()
     log_status = "FAILED" if error_message else "SUCCESS"
 
@@ -339,7 +345,6 @@ if __name__ == "__main__":
         log_cursor.execute(log_sql, log_values)
         log_conn.commit()
         print(f"✅ Đã ghi log '{log_status}' cho 'transform_staging_load'.")
-
     except Exception as e:
         print(f"❌ LỖI NGHIÊM TRỌNG: Không thể ghi log vào ControlManagementDB: {e}")
     finally:
@@ -350,7 +355,7 @@ if __name__ == "__main__":
 
     # --- XỬ LÝ KẾT THÚC (Gửi mail và Exit) ---
     if error_message:
-        # BƯỚC 7.2.a GỬI EMAIL LỖI
+        # BƯỚC 7.2.a GỬI EMAIL LỖI Transform
         print(f"Đã xảy ra lỗi: {error_message}")
         print("Bắt đầu gửi email báo lỗi Transform...")
         try:
@@ -366,6 +371,24 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"❌ Lỗi khi đang gửi email báo lỗi: {e}")
 
-        # 7.5. KẾT THÚC (THẤT BẠI)
         sys.exit(1)
-    # 7.6. KẾT THÚC (THÀNH CÔNG)
+        
+        # --7.10 GỬI EMAIL THÀNH CÔNG Transform  ---
+    if not error_message:
+        try:
+            email_cfg = config["email"]
+            receiver_list = [email_cfg["receiver"]]
+            subject = f"[ETL THÀNH CÔNG] Transform hoàn tất cho ngày {date_to_process}"
+            body = (
+                f"🎉 Quá trình Transform & Load đã hoàn tất thành công!\n\n"
+                f"Ngày xử lý: {date_to_process}\n"
+                f"Số bản ghi đã load: {records_loaded}\n"
+                f"Thời gian bắt đầu: {start_time}\n"
+                f"Thời gian kết thúc: {end_time}\n\n"
+                f"Trạng thái: {log_status}\n\n"
+                f"-- ETL Notification System --"
+            )
+            send_email(subject, body, receiver_list)
+            print("📧 Đã gửi email thông báo thành công.")
+        except Exception as e:
+            print(f"⚠️ Không thể gửi email báo thành công: {e}")
