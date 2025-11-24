@@ -70,6 +70,13 @@ try:
         body=f"Job ETL_Player_Data đã chạy thành công ✅\nThời gian: {start_time.strftime('%Y-%m-%d %H:%M:%S')}",
         to_list=receivers,
     )
+     # 7. Truy cập file transform.py để thực hiện Transform
+    print("Đang chạy file transform.py ...")
+    result_code = os.system("python scripts/transform.py")
+
+    # 8. Truy cập file load.py để thực hiện load to datawarehouse
+    print("Đang chạy file load.py ...")
+    result_code = os.system("python scripts/load.py")
 
 except Exception as e:
     # Cập nhật trạng thái quá trình ETL thành FAILED vào trong bảng Log_History của DB ControlManagementDB

@@ -8,10 +8,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# === 8.0 Xác định ROOT PROJECT để đọc config từ đường dẫn tương đối ===
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
 
+# === Hàm phụ: kết nối tới MySQL theo từng section trong config.ini ===
 def connect_mysql(section_name, config):
     db_cfg = config[section_name]
     return mysql.connector.connect(
@@ -22,6 +24,7 @@ def connect_mysql(section_name, config):
         port=db_cfg.get("port", 3306),
     )
 
+# === Hàm phụ: gửi email thông báo trạng thái job ===
 def send_email(config, subject, body):
     try:
         email_cfg = config["email"]
@@ -46,9 +49,14 @@ def send_email(config, subject, body):
     except Exception as e:
         print(f"⚠️ Gửi email thất bại: {e}")
 
+# === Hàm phụ: sinh khóa ngày (date_key) theo chuẩn DIM_DATE ===
 def generate_date_key(date_obj):
     return date_obj.strftime("%Y%m%d")
 
+
+# ================================================================
+# ======================== 8. LOAD TO DWH =========================
+# ================================================================
 def load_to_datawarehouse(config, data_date):
     start_time = datetime.datetime.now()
     print(f"🚀 Bắt đầu LOAD dữ liệu cho ngày {data_date}...")
@@ -61,9 +69,12 @@ def load_to_datawarehouse(config, data_date):
     log_id = None
 
     try:
+        # === 8.1.1 Kết nối tới ControlManagementDB ===
         control_conn = connect_mysql("databaseControlManagementDB", config)
         control_cur = control_conn.cursor()
 
+        # === 8.1.2 Kiểm tra job Transform (7.x) đã chạy thành công chưa ===
+        # Nếu transform chưa SUCCESS → STOP load
         control_cur.execute("""
             SELECT status 
             FROM log_history 
@@ -77,6 +88,7 @@ def load_to_datawarehouse(config, data_date):
             raise Exception("Job transform_to_staging chưa SUCCESS — dừng LOAD.")
         print("✅ Kiểm tra job Transform: SUCCESS — cho phép LOAD.")
 
+        # === 8.1.3 Ghi log RUNNING vào ControlManagementDB ===
         control_cur.execute(
             """
             INSERT INTO log_history (job_name, start_time, status, records_processed)
@@ -88,22 +100,27 @@ def load_to_datawarehouse(config, data_date):
         control_conn.commit()
         print("🟢 Ghi log trạng thái RUNNING...")
 
+        # === 8.2 Kết nối tới Staging & Data Warehouse ===
         staging_conn = connect_mysql("databasePerformance_Staging", config)
         dw_conn = connect_mysql("databaseDataWarehouseDB", config)
         staging_cur = staging_conn.cursor(dictionary=True)
         dw_cur = dw_conn.cursor(dictionary=True)
         print("✅ Đã kết nối tới Staging, Data Warehouse và Control DB")
 
+        # === 8.3 Đọc dữ liệu staging của ngày data_date ===
         staging_cur.execute("SELECT * FROM player_staging WHERE api_date = %s", (data_date,))
         players = staging_cur.fetchall()
         if not players:
             raise Exception(f"Không có dữ liệu staging cho ngày {data_date}")
         print(f"📦 Đã đọc {len(players)} bản ghi từ player_staging")
 
+        # === 8.4 Kiểm tra / Insert dim_date nếu chưa tồn tại ===
         date_obj = datetime.datetime.strptime(data_date, "%Y-%m-%d").date()
         date_key = generate_date_key(date_obj)
+
         dw_cur.execute("SELECT date_key FROM dim_date WHERE date_key = %s", (date_key,))
         if not dw_cur.fetchone():
+            # === 8.4.1 Insert DIM_DATE mới ===
             dw_cur.execute(
                 """
                 INSERT INTO dim_date (date_key, api_date, full_date, year, quarter, month, day, 
@@ -121,6 +138,7 @@ def load_to_datawarehouse(config, data_date):
             )
             print(f"📅 Thêm mới dim_date: {date_key}")
 
+            # === 8.4.2 Nếu có dữ liệu cũ trong fact_performance → xóa ===
             print(f"🧹 Kiểm tra dữ liệu cũ trong fact_performance cho ngày {date_key}...")
             dw_cur.execute("SELECT COUNT(*) AS cnt FROM fact_performance WHERE date_key = %s", (date_key,))
             existing_count = dw_cur.fetchone()["cnt"]
@@ -131,11 +149,15 @@ def load_to_datawarehouse(config, data_date):
             else:
                 print("✅ Không có dữ liệu cũ cần xóa.")
 
+        # === 8.5 Load DIM_PLAYER và FACT_PERFORMANCE ===
         for p in players:
+
+            # === 8.5.1 Kiểm tra player đã tồn tại chưa ===
             dw_cur.execute("SELECT * FROM dim_player WHERE player_id = %s AND is_current = 1", (p["player_id"],))
             current_player = dw_cur.fetchone()
 
             if not current_player:
+                # === 8.5.2 Thêm mới DIM_PLAYER ===
                 dw_cur.execute(
                     """
                     INSERT INTO dim_player (
@@ -152,8 +174,10 @@ def load_to_datawarehouse(config, data_date):
                 dw_cur.execute("SELECT LAST_INSERT_ID() AS player_key")
                 player_key = dw_cur.fetchone()["player_key"]
             else:
+                # === 8.5.3 Nếu player đã tồn tại → lấy player_key ===
                 player_key = current_player["player_key"]
 
+            # === 8.5.4 Insert FACT_PERFORMANCE ===
             dw_cur.execute(
                 """
                 INSERT INTO fact_performance (
@@ -169,10 +193,12 @@ def load_to_datawarehouse(config, data_date):
             )
             records_loaded += 1
 
+        # === 8.6 Commit toàn bộ dữ liệu vào DW ===
         dw_conn.commit()
         status = "SUCCESS"
         print(f"✅ Đã load {records_loaded} bản ghi vào fact_performance")
 
+    # === Bắt lỗi ===
     except Exception as e:
         status = "FAILED"
         error_msg = str(e)
@@ -181,6 +207,7 @@ def load_to_datawarehouse(config, data_date):
             dw_conn.rollback()
 
     finally:
+        # === 8.8 Cập nhật LOG (SUCCESS / FAILED) ===
         end_time = datetime.datetime.now()
         if control_conn and log_id:
             control_cur.execute(
@@ -194,6 +221,7 @@ def load_to_datawarehouse(config, data_date):
             control_conn.commit()
             print(f"📋 Cập nhật log {status} vào ControlManagementDB.")
 
+        # === 8.9 Gửi email thông báo kết quả ===
         subject = f"[ETL LOAD] {status} - {data_date}"
         body = f"""
         Job: load_to_datawarehouse
@@ -206,19 +234,26 @@ def load_to_datawarehouse(config, data_date):
         """
         send_email(config, subject, body)
 
+        # === 8.10 Đóng kết nối ===
         for c in [staging_cur, dw_cur, control_cur]:
             if c: c.close()
         for conn in [staging_conn, dw_conn, control_conn]:
             if conn and conn.is_connected():
                 conn.close()
 
+    # === 8.11 Trả về kết quả cho Scheduler hoặc người gọi ===
     return status, error_msg, records_loaded
 
 
+# ================================================================
+# ======================== ENTRY POINT ============================
+# ================================================================
 if __name__ == "__main__":
+    # === 8. Đọc config.ini ===
     config = configparser.ConfigParser()
     config.read(os.path.join(PROJECT_ROOT, "config", "config.ini"))
 
+    # === 8.1 Lấy timezone từ config ,tham số ngày từ scheduler ===
     timezone_name = (
         config["general"]["timezone"]
         if config.has_section("general") and "timezone" in config["general"]
@@ -226,7 +261,6 @@ if __name__ == "__main__":
     )
     tz = pytz.timezone(timezone_name)
 
-    # === Nhận ngày từ tham số, hoặc mặc định hôm nay (scheduler sẽ chạy yên lặng) ===
     if len(sys.argv) > 1:
         data_date = sys.argv[1]
         print(f"📅 Nhận tham số ngày: {data_date}")
