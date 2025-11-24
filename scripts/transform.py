@@ -114,10 +114,11 @@ def transform_and_load(data_date_str: str, config):
             return False, error_msg, 0  # Trả về 0 records
 
         # Nếu 'Có ✅', tiếp tục
+        # 7.4 Bắt đầu xử lí file và load bath id 
         print(f"Bắt đầu xử lý file: {input_file}")
         print(f"Load Batch ID: {load_batch_id}")
 
-        # 7.4. KẾT NỐI CSDL STAGING, DELETE, LOAD, COMMIT
+        # 7.5. KẾT NỐI CSDL STAGING, DELETE, LOAD, COMMIT
         print(f"✅ Kết nối thành công đến cơ sở dữ liệu: {db_config.get('database')}")
         conn = mysql.connector.connect(
             host=db_config.get("host"),
@@ -127,11 +128,12 @@ def transform_and_load(data_date_str: str, config):
             port=db_config.get("port"),
         )
         cursor = conn.cursor()
-
+        
+        # Bước 7.5.1: Khởi tạo các cấu trúc dữ liệu để chứa các bản ghi đã được Transform
         player_data_to_load = []
         date_data_to_load = {}
 
-        # 7.5 Đọc file csv và transform
+        #7.6 Đọc file staging_player_stats_yyyy-mm-dd.csv và tiến hành Transformation Phase
         with open(input_file, mode="r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -192,14 +194,15 @@ def transform_and_load(data_date_str: str, config):
                     )
                     date_data_to_load[api_date_str] = date_tuple
 
-        # 7.5.1 Xóa data snap short cũ
+        # 7.6.1 Xóa data snap short cũ player_staging theo api_date
         print(f"Đang dọn dẹp dữ liệu cũ cho api_date = '{data_date_str}'...")
         cursor.execute(
             "DELETE FROM player_staging WHERE api_date = %s", (data_date_str,)
         )
         print(f"Đã xóa {cursor.rowcount} bản ghi cũ.")
 
-        # 7.5.2 Load data mới vào table date_staging và player_staging
+        # 7.6.2 Load data mới vào table date_staging và player_staging
+        # 7.6.2.a: Thực hiện Bulk INSERT IGNORE vào date_staging 
         if date_data_to_load:
             date_values = list(date_data_to_load.values())
             sql_date = """INSERT IGNORE INTO date_staging (date_key, api_date, full_date, year, quarter, month, day, day_of_week, day_name, month_name, is_weekend, load_batch) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -207,20 +210,22 @@ def transform_and_load(data_date_str: str, config):
             print(
                 f"✅ Đã load {cursor.rowcount} bản ghi (ngày duy nhất) vào date_staging."
             )
-
+        # Bước 7.6.2.b: Thực hiện Bulk INSERT vào player_staging
         if player_data_to_load:
             sql_player = """INSERT INTO player_staging (player_id, player_name, team_id, team_name, nationality, position, age, height, weight, dominant_foot, rating, metric_type, metric_value, duelWon, passSuccess, assist, shotOnTarget, api_date, extract_time, date_key, load_batch) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             cursor.executemany(sql_player, player_data_to_load)
             record_count = cursor.rowcount
             print(f"✅ Đã load {record_count} bản ghi vào player_staging.")
-
+            
+        # Bước 7.6.2.c: Thực hiện **COMMIT** transaction để lưu thay đổi
         conn.commit()
-        # 7.6 Kết thúc Thông báo transform thành công (SUCEESD)
+        
+        # 7.7 Kết thúc Thông báo transform thành công (SUCEESD)
         print("🎉 Transform và Load hoàn tất!")
         return True, None, record_count
 
     except Exception as e:
-         # 7.7 Kết thúc Thông báo transform thành công (SUCEESD)
+         # 7.8 Kết thúc Thông báo transform thất bại (FAILED)
         error_msg = f"Lỗi trong quá trình Transform/Load: {e}"
         print(f"❌ {error_msg}")
         if conn:
@@ -305,7 +310,7 @@ if __name__ == "__main__":
         if not date_to_process:
             error_message = "Lỗi định dạng ngày (Manual) hoặc không có ngày xử lý."
 
-    # ----- 7.8 GHI LOG VÀO DATABASE log_history-----
+    # ----- 7.9 GHI LOG VÀO DATABASE log_history-----
     end_time = datetime.datetime.now()
     log_status = "FAILED" if error_message else "SUCCESS"
 
@@ -340,7 +345,6 @@ if __name__ == "__main__":
         log_cursor.execute(log_sql, log_values)
         log_conn.commit()
         print(f"✅ Đã ghi log '{log_status}' cho 'transform_staging_load'.")
-
     except Exception as e:
         print(f"❌ LỖI NGHIÊM TRỌNG: Không thể ghi log vào ControlManagementDB: {e}")
     finally:
@@ -351,7 +355,7 @@ if __name__ == "__main__":
 
     # --- XỬ LÝ KẾT THÚC (Gửi mail và Exit) ---
     if error_message:
-        # BƯỚC 7.2.a GỬI EMAIL LỖI
+        # BƯỚC 7.2.a GỬI EMAIL LỖI Transform
         print(f"Đã xảy ra lỗi: {error_message}")
         print("Bắt đầu gửi email báo lỗi Transform...")
         try:
@@ -369,7 +373,7 @@ if __name__ == "__main__":
 
         sys.exit(1)
         
-        # --- GỬI EMAIL THÀNH CÔNG ---
+        # --7.10 GỬI EMAIL THÀNH CÔNG Transform  ---
     if not error_message:
         try:
             email_cfg = config["email"]
@@ -388,4 +392,3 @@ if __name__ == "__main__":
             print("📧 Đã gửi email thông báo thành công.")
         except Exception as e:
             print(f"⚠️ Không thể gửi email báo thành công: {e}")
-
