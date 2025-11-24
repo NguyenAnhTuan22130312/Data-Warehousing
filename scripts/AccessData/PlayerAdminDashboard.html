@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Performance Admin</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+.sidebar-item:hover { background-color: #374151; cursor: pointer; }
+.active-nav { background-color: #2563eb; color: white; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
+.loading { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const metricLabels = {
+  GOAL_FOR: "Số bàn thắng",
+  ASSIST: "Số kiến tạo",
+  FOULED: "Số lỗi",
+  PASS_SUCCESS: "Đường chuyền thành công",
+  SHOT_ON_TARGET: "Cú sút trúng đích"
+};
+
+const Sidebar = ({ currentView, setCurrentView }) => (
+  <div className="w-64 bg-slate-900 min-h-screen text-white fixed left-0 top-0 hidden md:block">
+    <div className="p-6 border-b border-slate-700">
+      <h1 className="text-xl font-bold flex items-center gap-2">
+        <span className="text-blue-500">⚽</span> Performance Mart
+      </h1>
+      <p className="text-xs text-slate-400 mt-1">Data Warehouse System</p>
+    </div>
+    <nav className="mt-6">
+      <div className="px-4 mb-2 text-xs text-slate-500 uppercase font-semibold">Main Menu</div>
+      <div className={`sidebar-item px-6 py-3 flex items-center gap-3 ${currentView==='dashboard'?'active-nav border-r-4 border-blue-500':''}`}
+           onClick={()=>setCurrentView('dashboard')}>
+        <i data-lucide="layout-dashboard" className="w-4 h-4"></i> Dashboard
+      </div>
+      <div className={`sidebar-item px-6 py-3 flex items-center gap-3 ${currentView==='top'?'active-nav border-r-4 border-blue-500':''}`}
+           onClick={()=>setCurrentView('top')}>
+        <i data-lucide="award" className="w-4 h-4"></i> Top Players
+      </div>
+    </nav>
+  </div>
+);
+
+const Header = ({ isDemo }) => (
+  <div className="h-16 bg-white shadow-sm border-b border-gray-200 flex justify-between items-center px-8 md:ml-64">
+    <div className="flex items-center gap-2 text-gray-500">
+      <span className="text-sm font-medium">Home / Dashboard</span>
+    </div>
+    <div className="flex items-center gap-3 border-l pl-4">
+      <div className="text-right hidden sm:block">
+        <p className="text-sm font-bold text-gray-700">Admin User</p>
+        <p className={`text-xs ${isDemo?'text-orange-500':'text-green-600'}`}>
+          ● {isDemo?'Demo Mode':'System Online'}
+        </p>
+      </div>
+      <div className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
+    </div>
+  </div>
+);
+
+const StatCard = ({ title, value, icon, color }) => (
+  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center">
+    <div className={`p-3 rounded-full mr-4 ${color} bg-opacity-20`}>
+      <i data-lucide={icon} className={`w-6 h-6 ${color.replace('bg-', 'text-')}`}></i>
+    </div>
+    <div>
+      <p className="text-sm text-gray-500 font-medium">{title}</p>
+      <h3 className="text-2xl font-bold text-gray-800">{value}</h3>
+    </div>
+  </div>
+);
+
+// Dashboard: hiển thị tất cả player
+const DashboardView = ({ players }) => {
+  const uniqueTeams = [...new Set(players.map(p=>p.team).filter(Boolean))];
+  const avgRating = players.length ? (players.reduce((sum,p)=>sum+p.rating,0)/players.length).toFixed(2) : "0.00";
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard title="Total Records" value={players.length} icon="database" color="text-blue-600 bg-blue-600"/>
+        <StatCard title="Active Teams" value={uniqueTeams.length} icon="flag" color="text-purple-500 bg-purple-500"/>
+        <StatCard title="System Status" value="Live" icon="activity" color="text-emerald-500 bg-emerald-500"/>
+        <StatCard title="Avg Rating" value={avgRating} icon="star" color="text-red-500 bg-red-500"/>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 text-gray-500 text-xs uppercase font-semibold">
+                <th className="px-6 py-4">Player Name</th>
+                <th className="px-6 py-4">Team</th>
+                <th className="px-6 py-4 text-center">Metric</th>
+                <th className="px-6 py-4 text-center">Value</th>
+                <th className="px-6 py-4 text-center">Rating</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {players.map((p,i)=>(
+                <tr key={i} className="hover:bg-blue-50/50 transition">
+                  <td className="px-6 py-4">{p.name}</td>
+                  <td className="px-6 py-4">{p.team}</td>
+                  <td className="px-6 py-4 text-center">{metricLabels[p.metric] || p.metric}</td>
+                  <td className="px-6 py-4 text-center">{p.value}</td>
+                  <td className="px-6 py-4 text-center">{p.rating}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  )
+};
+
+// Top Players: gom và tính rating
+const TopPlayersView = ({ players }) => {
+  const playerMap = {};
+  players.forEach(p=>{
+    if(!playerMap[p.name]) playerMap[p.name]={...p, metrics: []};
+    playerMap[p.name].metrics.push(p);
+  });
+  const topPlayers = Object.values(playerMap).map(p=>{
+    const rating = p.metrics.reduce((sum,m)=>{
+      if(m.metric==='GOAL_FOR') return sum + m.value*4;
+      if(m.metric==='ASSIST') return sum + m.value*3;
+      if(m.metric==='SHOT_ON_TARGET') return sum + m.value*0.5;
+      if(m.metric==='PASS_SUCCESS') return sum + m.value*0.1;
+      return sum;
+    },0);
+    return {...p,rating:Math.round(rating*100)/100};
+  }).sort((a,b)=>b.rating-a.rating).slice(0,10);
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Top Players</h2>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-50 text-gray-500 text-xs uppercase font-semibold">
+              <th className="px-6 py-4">Player</th>
+              <th className="px-6 py-4">Team</th>
+              <th className="px-6 py-4 text-center">Rating</th>
+              <th className="px-6 py-4 text-center">Metrics</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {topPlayers.map((p,i)=>(
+              <tr key={i} className="hover:bg-blue-50/50 transition">
+                <td className="px-6 py-4">{p.name}</td>
+                <td className="px-6 py-4">{p.team}</td>
+                <td className="px-6 py-4 text-center">{p.rating}</td>
+                <td className="px-6 py-4 text-center text-xs">
+                  {p.metrics.map(m=>(
+                    <span key={m.metric} className="inline-block bg-gray-100 text-gray-600 px-2 py-1 rounded mr-1 mb-1 border border-gray-200">
+                      {metricLabels[m.metric] || m.metric}: {m.value}
+                    </span>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+};
+
+const App = () => {
+  const [currentView, setCurrentView] = useState("dashboard");
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
+
+  useEffect(()=>{
+    setLoading(true);
+    fetch("http://localhost:3000/api/player_performance")
+      .then(res=>res.json())
+      .then(data=>{
+        // mỗi bản ghi giữ nguyên
+        const playersWithRating = data.map(p=>{
+          let rating = 0;
+          if(p.metric==='GOAL_FOR') rating = p.value*4;
+          if(p.metric==='ASSIST') rating = p.value*3;
+          if(p.metric==='SHOT_ON_TARGET') rating = p.value*0.5;
+          if(p.metric==='PASS_SUCCESS') rating = p.value*0.1;
+          return {...p, rating:Math.round(rating*100)/100};
+        });
+        setPlayers(playersWithRating);
+        setLoading(false);
+        setIsDemo(false);
+        setTimeout(()=>lucide.createIcons(),100);
+      })
+      .catch(err=>{
+        console.error(err);
+        setLoading(false);
+        setIsDemo(true);
+      });
+  },[]);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Sidebar currentView={currentView} setCurrentView={setCurrentView}/>
+      <div className="md:ml-64 transition-all">
+        <Header isDemo={isDemo}/>
+        <main className="p-8">
+          {loading ? <p className="text-center text-gray-500 loading">Đang tải dữ liệu...</p> : null}
+          {currentView==='dashboard' && <DashboardView players={players} />}
+          {currentView==='top' && <TopPlayersView players={players} />}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+</body>
+</html>
