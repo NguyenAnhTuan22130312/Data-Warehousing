@@ -244,6 +244,33 @@ def load_to_datawarehouse(config, data_date):
     # === 8.11 Trả về kết quả cho Scheduler hoặc người gọi ===
     return status, error_msg, records_loaded
 
+# === Hàm phụ: gửi email thông báo trạng thái job ===
+def send_email(config, subject, body):
+    try:
+        email_cfg = config["email"]
+        sender = email_cfg["sender"]
+        receiver = email_cfg["receiver"]
+        password = email_cfg["password"]
+        smtp_server = email_cfg.get("smtp_server", "smtp.gmail.com")
+        smtp_port = int(email_cfg.get("smtp_port", 587))
+
+        msg = MIMEMultipart()
+        msg["From"] = sender
+        msg["To"] = receiver
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain", "utf-8"))
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender, password)
+            server.send_message(msg)
+
+        print(f"📧 Email đã gửi tới {receiver}")
+
+    except Exception as e:
+        print(f"⚠️ Gửi email thất bại: {e}")
+
+
 
 # ================================================================
 # ======================== ENTRY POINT ============================
@@ -251,7 +278,7 @@ def load_to_datawarehouse(config, data_date):
 if __name__ == "__main__":
     # === 8. Đọc config.ini ===
     config = configparser.ConfigParser()
-    config.read(os.path.join(PROJECT_ROOT, "config", "config.ini"))
+    config.read(os.path.join(PROJECT_ROOT, "config", "config_load.ini"))
 
     # === 8.1 Lấy timezone từ config ,tham số ngày từ scheduler ===
     timezone_name = (
